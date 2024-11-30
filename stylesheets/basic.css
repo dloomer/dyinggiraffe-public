@@ -1,0 +1,15 @@
+BODY {
+	background-color:#DFDFDF; 
+}
+DIV#topnav-toolbar-wrapper a {
+	color:#333333
+}
+DIV.section-container {
+	background:url(/images/border-classic.gif)
+}
+DIV.section-divider {
+	background:url(/images/rounded-classic.gif) no-repeat
+}
+DIV.section-bottom {
+	background:url(/images/rounded-bottom-classic.gif) no-repeat
+}

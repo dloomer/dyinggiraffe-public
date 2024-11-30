@@ -1,0 +1,1 @@
+appcfg.py --no_cookies --email=dloomer@gmail.com --passin rollback "/users/davidloomer/Documents/workspace/dyinggiraffe-hrd"

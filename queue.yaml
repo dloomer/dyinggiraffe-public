@@ -1,0 +1,11 @@
+queue:
+- name: post-words
+  rate: 5/s
+
+- name: chat-stats
+  rate: 500/h
+
+- name: cbs-data
+  rate: 50/s
+  bucket_size: 100
+   

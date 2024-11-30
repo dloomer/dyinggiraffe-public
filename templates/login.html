@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>dyinggiraffe.com | login</title>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper">dyinggiraffe.com</div>
+      <div id="topnav-toolbar-wrapper">
+        <form action="history.asp" target="_blank">
+          &nbsp;
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container">
+    <div class="section-wrapper">
+		<form method="post">
+			<br/><br/>
+			Please select your team:
+			<select name="setupTeamId">
+			<option value="">
+	        {% for team in teams %}
+				<option value="{{team.key().name()}}">{{team.teamname}}</option>
+	        {% endfor %}
+			</select><br/><br/>
+			Password: <input type="password" name="password">&nbsp;<input type="submit" value="Submit"><br/><br/>
+			<br/><br/>
+		</form>
+   </div>
+  <div class="section-bottom"></div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>dyinggiraffe.com | Photo and Video Archive</title>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+{% if firefox_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/firewin.css" />
+{% endif %}
+{% if ie_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/iewin.css" />
+{% endif %}
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="/javascript/thickbox-compressed.js"></script>
+<script language="javascript">
+	function selectyear()
+	{
+		if ($("#year").val() == 0)
+			$("#month").attr("disabled", true);
+		else
+			$("#month").removeAttr("disabled");
+	}
+	function selectmonth()
+	{
+		if ($("#month").val() == 0)
+			$("#day").attr("disabled", true);
+		else
+			$("#day").removeAttr("disabled");
+	}
+</script>
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper"><a href="/">dyinggiraffe.com</a> | <a href="/dashboard/prefs">{{team_owner_name}}</a></div>
+      <div id="topnav-toolbar-wrapper">
+        <form method="get" action="/dashboard/chat">
+          <a href="/">Chat</a> | <a href="/dashboard">Dashboard</a> | <a href="/fantasy">Cap</a> | <a href="/fantasy/pickem">Pick 'Em</a> | <a href="https://drive.google.com/file/d/0B4Pv8fdYxaAmOGZYQVlZbFJDSTBzRUozazh2c1hMcm15Q0RF/view" target="_blank">#RTFRB</a> | <a href="/logout">Log Out</a> | <input type="hidden" name="action" value="search"><input type="text" class="textbox" name="keywords"><input type="hidden" name="year" value="0"> <input class="submit" type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container">
+    <div class="section-wrapper">
+	    <div id="dashboard-tabs">
+			<div class="nonselected-tab"><a href="/dashboard/admin">Admin</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/prefs">Personal Prefs</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/chat">Chat Archive</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/generator">Fake Post Generator</a></div>
+			<div class="selected-tab"><a href="/dashboard/photos">Photo and Video Archive</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/stats">Stats</a></div>
+			<div class="tab-right-filler">&nbsp;</div>
+		</div>
+		<br clear="all"/>
+	    <div id="chat_archive-selectors">
+			<form method="get"><input type="hidden" name="action" value="search">
+				<div class="chat_archive-selector">Year
+					<select id="year" name="year" onchange="selectyear()">
+					<option value="0">(all)</option>
+			        {% for thisyear in years %}
+					<option {% if thisyear.year_central == year %}selected{% endif %} value="{{thisyear.year_central}}">{{thisyear.year_central}}</option>
+			        {% endfor %}
+					</select>
+				</div>
+				<div class="chat_archive-selector">Month
+					<select id="month" name="month" onchange="selectmonth()"{% if year == 0 %} disabled=true{% endif %}>
+					<option value="0">(all)</option>
+			        {% for thismonth in months %}
+					<option {% if loop.index == month %}selected{% endif %} value="{{loop.index}}">{{thismonth}}</option>
+			        {% endfor %}
+					</select>
+				</div>
+				<div class="chat_archive-selector">Day
+					<select id="day" name="day"{% if not month %} disabled=true{% endif %}>
+					<option value="0">(all)</option>
+			        {% for thisday in days %}
+					<option {% if loop.index == day %}selected{% endif %} value="{{loop.index}}">{{thisday}}</option>
+			        {% endfor %}
+					</select>
+				</div>
+				<div class="chat_archive-selector">Keywords <input name="keywords" value="{{keywords}}" type="text"></div>
+				<div class="chat_archive-selector"><input type="hidden" name="elementkey" value="{{elementkey}}"><input type="submit" value="Submit"></div>
+			</form>
+		</div>
+		<br clear="all"/>
+	    <div class="line-divider"></div>
+	      <div id="photo_archive_results">
+		    <br/>
+			{% include "templates/photo_archive_record_output.html" %}
+	      </div>
+		  <br/>
+		{% if has_more %}
+			<div id="more-data-loader">
+				<a name="more" href="#more" onclick="get_more_data()"><div id="more-data-loader-content">more . . .</div></a>
+			</div>
+		{% endif %}
+   </div>
+  <div class="section-bottom"></div>
+</body>
+<script language="javascript">
+	firstdate='{{firstdate}}';
+	function get_more_data()
+	{
+		$.get("/dashboard/photos",
+			{ action: "ajax_search", year: "{{year}}", month: "{{month}}", day: "{{day}}", team: "{{team}}", keywords: "{{keywords}}", elementkey: "{{elementkey}}", firstdate: firstdate },
+			function(data){
+				var nextdata;
+				var has_more;
+				eval(data);
+				$("#photo_archive_results").append(nextdata);
+				tb_init('a.thickbox');
+				if (!has_more)
+					$("#more-data-loader").css("visibility", "hidden");
+			}
+		);
+	}
+</script>
+</html>

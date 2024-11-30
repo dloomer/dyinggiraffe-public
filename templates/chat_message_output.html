@@ -1,0 +1,3 @@
+{% for chatmessage in chatmessages %}
+  <b>{{chatmessage.teamownername()}} ({{chatmessage.displaydate}})</b> {{chatmessage.htmltext}} <br />
+{% endfor %}

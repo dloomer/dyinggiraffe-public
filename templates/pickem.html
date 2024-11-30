@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>dyinggiraffe.com | Pick 'em</title>
+    <link type="text/css" rel="stylesheet" href="http://www.google.com/uds/modules/gviz/1.0/table/table.css" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+{% if firefox_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/firewin.css" />
+{% endif %}
+{% if ie_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/iewin.css" />
+{% endif %}
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="application/javascript">
+</script>
+
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper"><a href="/">dyinggiraffe.com</a> | <a href="/dashboard/prefs">{{team_owner_name}}</a></div>
+      <div id="topnav-toolbar-wrapper">
+        <form method="get" action="/dashboard/chat">
+          <a href="/">Chat</a> | <a href="/dashboard">Dashboard</a> | <a href="/fantasy">Cap</a> | <a href="https://drive.google.com/file/d/0B4Pv8fdYxaAmOGZYQVlZbFJDSTBzRUozazh2c1hMcm15Q0RF/view" target="_blank">#RTFRB</a> | <a href="/logout">Log Out</a> | <input type="hidden" name="action" value="search"><input type="text" class="textbox" name="keywords"><input type="hidden" name="year" value="0"> <input class="submit" type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container">
+    <div class="section-wrapper">
+	    <div id="dashboard-tabs">
+			<div class="selected-tab">Picks</div>
+			<div class="nonselected-tab"><a href="/fantasy/pickem/standings">Standings</a></div>
+			<div class="tab-right-filler">&nbsp;</div>
+		</div>
+		<br clear="all"/>
+		<div id="pickem-body">
+			<div id="pickem-content">
+				<br clear="all"/>
+				<div>
+					Week
+					{% for week_number in week_numbers %}
+					{% if week_number == current_week.weeknumber %}
+					<b>{{week_number}}</b>&nbsp;
+					{% else %}
+					<a class="navigation" href="pickem?week={{week_number}}">{{week_number}}</a>&nbsp;
+					{% endif %}
+					{% endfor %}
+				</div>
+				<br clear="all"/>
+				<div>
+					<h2>Week {{current_week.weeknumber}} ({{current_week.start_date|datetime('%B %d')}} - {{current_week.end_date|datetime('%B %d')}})</h2>
+					{% if is_editable %}
+					{% if current_week.first_game_datetime %}First MLB game: {{current_week.first_game_datetime_central()|datetime('%A, %B %d @ %I:%M %p')}} CDT<br/>{% endif %}
+					{% if current_week.entry_deadline_datetime_central() %}HARD deadline: {{current_week.entry_deadline_datetime_central()|datetime('%A, %B %d @ %I:%M %p')}} CDT<br/>{% endif %}
+					{% if submitted_datetime_central %}
+					<br/>
+					<i>Your entry was submitted {{submitted_datetime_central|datetime('%A, %B %d @ %I:%M %p')}} CDT.</i><br/>
+					{% if entry_is_late %}
+					<i style="color:red;font-weight:bold;">Note: Your entry has been marked "LATE."</i><br/>
+					{% elif now_is_late %}
+					<i style="color:red;font-weight:bold;">Note: You may still change your picks, but if you do so your entry will be marked "LATE."</i><br/>
+					{% endif %}
+					{% endif %}
+					{% endif %}
+				</div>
+				<br clear="all"/>
+				<div>
+					<div style="overflow:auto;display:inline-block;">
+					{% if is_editable %}
+					<form method="post">
+						<table class="google-visualization-table-table">
+						<tbody>
+						<tr class="google-visualization-table-tr-head">
+							<td class="google-visualization-table-th">Visitor</td>
+							<td class="google-visualization-table-th">Home</td>
+							<td class="google-visualization-table-th">Selection Weight</td>
+						</tr>
+					{% for matchup in my_matchups %}
+						<tr class="google-visualization-table-tr-{{ loop.cycle('odd','even') }}">
+							<td class="google-visualization-table-td"><input {% if matchup.get('selection', {}).get('selected_team', {}).get('cbs_team_id') == matchup.visitor_team.cbs_team_id %}checked="true" {% endif %}type="radio" name="selection_{{matchup.key_name}}" id="team_selection_{{matchup.visitor_team.cbs_team_id}}" value="{{matchup.visitor_team.cbs_team_id}}"/> <label for="team_selection_{{matchup.visitor_team.cbs_team_id}}">{{matchup.visitor_team.team_name}}</label></td>
+							<td class="google-visualization-table-td"><input {% if matchup.get('selection', {}).get('selected_team', {}).get('cbs_team_id') == matchup.home_team.cbs_team_id %}checked="true" {% endif %}type="radio" name="selection_{{matchup.key_name}}" id="team_selection_{{matchup.home_team.cbs_team_id}}" value="{{matchup.home_team.cbs_team_id}}"/> <label for="team_selection_{{matchup.home_team.cbs_team_id}}">{{matchup.home_team.team_name}}</label></td>
+							<td class="google-visualization-table-td">
+								<label for="team_selection_{{matchup.key_name}}_1">1</label>
+								<input {% if matchup.get('selection', {}).get('selection_weight') == 1 %}checked="true" {% endif %}type="radio" id="team_selection_{{matchup.key_name}}_1" name="weight_{{matchup.key_name}}" value="1">&nbsp;
+								<input {% if matchup.get('selection', {}).get('selection_weight') == 2 %}checked="true" {% endif %}type="radio" name="weight_{{matchup.key_name}}" value="2">&nbsp;
+								<input {% if matchup.get('selection', {}).get('selection_weight') == 3 %}checked="true" {% endif %}type="radio" name="weight_{{matchup.key_name}}" value="3">&nbsp;
+								<input {% if matchup.get('selection', {}).get('selection_weight') == 4 %}checked="true" {% endif %}type="radio" name="weight_{{matchup.key_name}}" value="4">&nbsp;
+								<input {% if matchup.get('selection', {}).get('selection_weight') == 5 %}checked="true" {% endif %}type="radio" name="weight_{{matchup.key_name}}" value="5">&nbsp;
+								<input {% if matchup.get('selection', {}).get('selection_weight') == 6 %}checked="true" {% endif %}type="radio" name="weight_{{matchup.key_name}}" value="6">&nbsp;
+								<input {% if matchup.get('selection', {}).get('selection_weight') == 7 %}checked="true" {% endif %}type="radio" id="weight_{{matchup.key_name}}_7" name="weight_{{matchup.key_name}}" value="7">
+								<label for="weight_{{matchup.key_name}}_7">7</label>
+							</td>
+						</tr>
+					{% endfor %}
+						</tbody>
+						</table>
+						<br clear="all"/>
+					<fieldset style="padding:0;">
+	                <div class="control-group" style="float:right;">
+	                  <label class="control-label" for="txtEntrantName">Your Name</label>
+	                  <div class="controls">
+	                    <input name="entrant_name" type="text" id="txtEntrantName" class="textbox input-medium" value="{{entrant_name}}">
+	                    <input type="submit" name="submit" value="Submit" class="btn">
+	                  </div>
+	                </div>
+	                </fieldset>
+					<input type="hidden" name="_week" value="{{current_week.weeknumber}}">
+					<input type="hidden" name="team" value="{{entrant.franchise.teamid}}">
+
+					</form>
+					<i>{{current_week.entries|length}} {% if current_week.entries|length == 1 %}entry{% else %}entries{% endif %} received this week.</i><br/>
+					{% else %}
+						<table class="google-visualization-table-table">
+						<tbody>
+						<tr class="google-visualization-table-tr-head">
+							<td class="google-visualization-table-td">&nbsp;</td>
+							{% for matchup in picks_grid.matchups %}
+							<td class="google-visualization-table-td">{{matchup.visitor_team.team_abbrev}}<br/>@ {{matchup.home_team.team_abbrev}}</td>
+							{% endfor %}
+							{% if week_has_final_scores %}
+							<td class="google-visualization-table-td">Score</td>
+							{% endif %}
+						</tr>
+					{% for entry in picks_grid.entries %}
+						<tr class="google-visualization-table-tr-{{ loop.cycle('odd','even') }}">
+							<td class="google-visualization-table-td">{% if entry.is_late %}<span class="late-pickem-entry" title="{{entry.late_duration_str}} late">{{entry.team.name}} *</span>{% else %}{{entry.team.name}}{% endif %}</td>
+							{% for matchup in entry.selections %}
+							{% if matchup.selection %}
+							<td class="google-visualization-table-td{% if week_has_final_scores %}{% if matchup.selection.is_correct %} pickem-correct-selection{% else %} pickem-incorrect-selection{% endif %}{% endif %}">{{matchup.selection.selected_team.team_abbrev}} ({{matchup.selection.selection_weight}})</td>
+							{% else %}
+							<td>&nbsp;</td>
+							{% endif %}
+							{% endfor %}
+							{% if week_has_final_scores %}
+							<td class="google-visualization-table-td-right">{{entry.total_score}}</td>
+							{% endif %}
+						</tr>
+					{% endfor %}
+						</tbody>
+						</table>
+					{% endif %}
+					<br clear="all"/>
+					</div>
+				</div>
+			</div>
+		</div>
+   </div>
+   <div class="section-bottom"></div>
+</body>
+</html>

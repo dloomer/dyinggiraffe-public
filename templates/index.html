@@ -1,0 +1,514 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<!--<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" /> -->
+    <title>{{ title }}</title>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+{% if firefox_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/firewin.css" />
+{% endif %}
+{% if ie_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/iewin.css" />
+{% endif %}
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script type="text/javascript" src="javascript/thickbox-compressed.js"></script>
+	<script type='text/javascript' src='http://platform.twitter.com/widgets.js'></script>
+</head>
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper">dyinggiraffe.com | <a href="/dashboard/prefs">{{team_owner_name}}</a></div>
+      <div id="topnav-toolbar-wrapper">
+        <form method="get" action="/dashboard/chat">
+          <a href="/dashboard">Dashboard</a> | <a href="/fantasy">Cap</a> | <a href="/fantasy/pickem">Pick 'Em</a> | <a href="https://drive.google.com/file/d/0B4Pv8fdYxaAmOGZYQVlZbFJDSTBzRUozazh2c1hMcm15Q0RF/view" target="_blank">#RTFRB</a> | <a href="/logout">Log Out</a> | <input type="hidden" name="action" value="search"><input type="text" class="textbox" name="keywords"><input type="hidden" name="year" value="0"> <input class="submit" type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </div>
+
+<div id="media-section-wrapper">
+  <div class="section-divider"></div>
+
+  <div class="section-container" id="media-section-container">
+     <div class="media-element-wrapper" style="width:325px;">
+       <div id="photo1div" class="landscape-photo-wrapper" style="visibility:visible">
+		 <a id="photo1link" href="" class="thickbox">
+           <img id="photo1" border="0" title="" alt="" width="320" height="260">
+         </a>
+       </div>
+       <div id="video1div" class="video-wrapper" style="visibility:hidden;">
+         <span id="videomsg1" style="color:red">&nbsp;</span>
+       </div>
+     </div>
+
+     <div class="media-element-wrapper" style="width:205px;">
+      <div id="photo2div" class="portrait-photo-wrapper">
+		 <a id="photo2link" href="" class="thickbox">
+           <img id="photo2" border="0" title="" alt="" width="200" height="260">
+        </a>
+      </div>
+    </div>
+
+    <div class="media-element-wrapper" style="width:320px;">
+      <div id="photo3div" class="landscape-photo-wrapper" style="visibility:visible">
+		 <a id="photo3link" href="" class="thickbox">
+	        <img id="photo3" border="0" width="320" height="260">
+	    </a>
+      </div>
+      <div id="video2div" class="video-wrapper" style="visibility:hidden;">
+        <span id="videomsg2" style="color:red">&nbsp;</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container" id="chat-section-container">
+    <div class="section-wrapper" id="chat-section-wrapper">
+      <form id="trashform" method="post" onsubmit="return ajaxpost(this)">
+        <span style="font-size:13px">Love and puppies:</span><a class="camera-icon thickbox" href="/image_upload?height=112&width=450&target_id=trash_input&TB_iframe=true" title="Upload an image"></a> <input class="textbox" name="trash" id="trash_input" style="width:654px" maxlength=300 autocomplete="off">&nbsp;<input class="submit" type="submit" value="Submit"><p/>
+      </form>
+	  <div id="last_autorefresh_info" style="float:right;font-style:italic;font-size:8pt;margin-right:5px">&nbsp;</div>
+	{% if false %}
+	  <div style="margin-top:5px;display:inline-block;margin-bottom:5px;">
+		<script language="JavaScript">
+		TargetDate = "10/14/2011 12:28 PM";
+		BackColor = "white";
+		ForeColor = "#444";
+		CountActive = true;
+		CountStepper = -1;
+		LeadingZero = true;
+		DisplayFormat = "%%D%% days, %%H%% hours, %%M%% minutes, %%S%% seconds until #reconciliation";
+		FinishMessage = "#reconciliation #B #I #T #C #H";
+		</script>
+		<script language="JavaScript" src="/javascript/countdown.js"></script>
+	  </div>
+	{% endif %}
+	  <br/>
+      <ul id="chatMessages" style="list-style: none">
+      </div>
+	  <br/>
+	<div id="more-data-loader" style="display:none;margin-left:15px">
+		<a name="more" href="#more" onclick="get_more_messages(); return false;"><div id="more-data-loader-content">more . . .</div></a>
+	</div>
+   </div>
+  <div class="section-bottom"></div>
+</body>
+	<script language="javascript">
+		function formatDate(date) {
+			return (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + formatTime(date, true);
+		}
+		function formatTime(date, includeSeconds) {
+			var ampm = "";
+			var h = date.getHours();
+			if (h < 12) {
+				if (h == 0) h = 12;
+				ampm = "AM";
+			}
+			else {
+				if (h > 12) h = h - 12;
+				ampm = "PM";
+			}
+			minutes = date.getMinutes() + '';
+			minutes = ('0' + minutes).substring(minutes.length - 1);
+			seconds = date.getSeconds() + '';
+			seconds = ('0' + seconds).substring(seconds.length - 1);
+			s = h + ":" + minutes;
+			if (includeSeconds) s += ":" + seconds;
+			s += " " + ampm
+			return s;
+		}
+		getnewpostspending=false;
+		addingnewpostpending=false;
+		json = {{json}};
+		team_owner_name = "{{team_owner_name|escape}}";
+		team_key_name = '{{team_key_name}}';
+		chat_messages = json.chat_messages;
+		pending_chat_messages = [];
+		cur_photo1url="";
+		cur_photo2url="";
+		cur_photo3url="";
+		cur_video1id="";
+		cur_video2id="";
+		blinkingTitleIndex = -1;
+		blinkingTitlePosterNames = [];
+		normaltitle = "";
+		lostFocus = false;
+		displayJsonData(json, true);
+		if (json.has_more)
+			$("#more-data-loader").css("display", "block");
+		var blinkTimer;
+		var blinkTitle = function() {
+			//console.log("blink; lostFocus=" + lostFocus);
+			if(lostFocus)
+			{
+				blinkingTitleIndex += 1;
+				if (blinkingTitleIndex >= blinkingTitlePosterNames.length) blinkingTitleIndex = 0;
+				var blinkingtitle = blinkingTitlePosterNames[blinkingTitleIndex] + " has posted";
+				document.title = (blinkingTitlePosterNames.length == 0 || document.title == blinkingtitle) ? normaltitle : blinkingtitle;
+				blinkTimer = window.setTimeout("blinkTitle()", 1500);
+				//console.log("reset blinkTimer");
+			} else {
+				blinkingTitlePosterNames = [];
+				blinkingTitleIndex = -1;
+				document.title = normaltitle;
+			}
+		}
+
+		function indexOf(s, searchElement) {
+			if (Array.prototype.indexOf) return s.indexOf(searchElement);
+
+	        var t = Object(s);
+	        var len = t.length >>> 0;
+	        if (len === 0) {
+	            return -1;
+	        }
+	        var n = 0;
+	        if (arguments.length > 0) {
+	            n = Number(arguments[1]);
+	            if (n !== n) { // shortcut for verifying if it's NaN
+	                n = 0;
+	            } else if (n !== 0 && n !== Infinity && n !== -Infinity) {
+	                n = (n > 0 || -1) * Math.floor(Math.abs(n));
+	            }
+	        }
+	        if (n >= len) {
+	            return -1;
+	        }
+	        var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+	        for (; k < len; k++) {
+	            if (k in t && t[k] === searchElement) {
+	                return k;
+	            }
+	        }
+	        return -1;
+	    }
+		function stringToDate(s) {
+			d = new Date(s);
+			if (d.getDay())
+				return d;
+			else {
+				s = s.replace(" UTC ", " -0000 ");
+				d = new Date(s);
+				return d
+			}
+		}
+		function displayJsonData(data, suppressBlink, addToEnd) {
+			var s = "";
+			var lastpostername = "";
+			var prevBlinkingTitlePosterNamesLength = blinkingTitlePosterNames.length;
+			var cssMediaIds = [];
+			if (data.chat_messages) {
+				lastpostername = data.chat_messages[0].team_owner_name;
+				for (var i=0; i < data.chat_messages.length; i++) {
+					var chatmessage = data.chat_messages[i];
+					var cssId = "message" + chatmessage.id ;
+					if ($("#" + cssId).length) continue;
+					var date = stringToDate(chatmessage.date);
+					if (!suppressBlink && indexOf(blinkingTitlePosterNames, chatmessage.team_owner_name) < 0)
+						blinkingTitlePosterNames.push(chatmessage.team_owner_name);
+				  	s += "<li id=\"" + cssId + "\"><b>" + chatmessage.team_owner_name + " (" + formatDate(date) + ")</b> " + chatmessage.text + "<br />";
+					if (!data.hideinlinemedia && chatmessage.media.length) {
+						for (var m=0; m < chatmessage.media.length; m++) {
+							var media = chatmessage.media[m];
+							if (media.type == "youtube") {
+								s += "<iframe width=\"372\" height=\"235\" style=\"margin-top:3px;margin-bottom:10px;margin-right:10px;display:inline-block;\" src=\"//www.youtube.com/embed/" + media.youtube_id + "?rel=0&fs=1\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
+								//s += "<object width=\"320\" height=\"260\" style=\"margin-top:3px;margin-bottom:10px;margin-right:10px;display:inline-block;\"><param name=\"movie\" value=\"http://www.youtube.com/v/" + media.youtube_id + "\"></param><param name=\"wmode\" value=\"transparent\"></param><embed src=\"http://www.youtube.com/v/" + media.youtube_id + "\" type=\"application/x-shockwave-flash\" wmode=\"transparent\" width=\"320\" height=\"260\"></embed></object>"
+							} else if (media.type == "tweet") {
+								s += media.embed_html;
+								//s += "\n" + "<s" + "cript src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"><" + "/script>";
+							} else {
+								var thumbnail_width = media.thumbnail_width;
+								var thumbnail_height = media.thumbnail_height;
+								if (thumbnail_height > 200) {
+									thumbnail_height = 200;
+									thumbnail_width = parseInt(thumbnail_height * (media.thumbnail_width/media.thumbnail_height), 10);
+								}
+								s += "<a href='/photopopup?photokey=" + media.photo_key + "&height=" + media.popup_height + "&width=" + media.popup_width + "' target='_blank' class='chat_thickbox'>";
+								if (media.thumbnail_blob_key)
+									s += "<img src='/blobstore/" + media.thumbnail_blob_key + "?url=" + encodeURIComponent(media.image_url) + "' style='height:" + thumbnail_height + "px;width:" + thumbnail_width + "px;margin-top:3px;margin-bottom:10px;margin-right:10px;display:inline-block;'>";
+								else if (media.thumbnail_serving_url)
+									s += "<img src='" + media.thumbnail_serving_url + "' style='height:" + thumbnail_height + "px;width:" + thumbnail_width + "px;margin-top:3px;margin-bottom:10px;margin-right:10px;display:inline-block;'>";
+								s += "</a>";
+							}
+						}
+						cssMediaIds.push(cssId);
+					}
+					s += "</li>";
+				}
+			}
+			//console.log(new Date().toString() + " - blinkingTitlePosterNames.length=" + blinkingTitlePosterNames.length + "; prevBlinkingTitlePosterNamesLength=" + prevBlinkingTitlePosterNamesLength);
+			if (blinkingTitlePosterNames.length > 0 && prevBlinkingTitlePosterNamesLength == 0)
+				blinkTimer = window.setTimeout("blinkTitle()", 1500);
+			if (addToEnd)
+				$("#chatMessages").append(s);
+			else
+				$("#chatMessages").prepend(s);
+
+			if (data.chat_messages) {
+				try {
+					twttr.widgets.load();
+				} catch(e) {}
+				//	tb_init("a.chat_thickbox");
+				for (var i=0; i < cssMediaIds.length; i++) {
+					tb_init("#" + cssMediaIds[i] + " a.chat_thickbox");
+				}
+				cssMediaIds = [];
+			}
+			if (data.settings) {
+				if (data.hidephotos)
+					$("#media-section-wrapper").hide();
+				else
+				{
+					if (data.settings.photo1url != cur_photo1url || data.settings.video1id != cur_video1id)
+					{
+					if (cur_video1id)
+						$("#videomsg1").append("Video replaced -- refresh the page to see updates.");
+					else
+					{
+						if (data.settings.video1id)
+						{
+							$("#video1div").prepend("<iframe width=\"320\" height=\"260\" src=\"//www.youtube.com/embed/" + data.settings.video1id + "?rel=1&fs=1\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>");
+							//$("#video1div").prepend("<object width=\"320\" height=\"260\"><param name=\"movie\" value=\"http://www.youtube.com/v/" + data.settings.video1id + "\"></param><param name=\"wmode\" value=\"transparent\"></param><embed src=\"http://www.youtube.com/v/" + data.settings.video1id + "\" type=\"application/x-shockwave-flash\" wmode=\"transparent\" width=\"320\" height=\"260\"></embed></object>");
+							$("#video1div").css("visibility", "visible");
+							$("#photo1div").css("visibility", "hidden");
+						}
+						else
+						{
+							$("#photo1").attr("src", data.settings.photo1url);
+							$("#photo1link").attr("href", "/photopopup?photokey=" + data.settings.photo1key + "&height=" + data.settings.photo1popupheight + "&width=" + data.settings.photo1popupwidth);
+						}
+					}
+					cur_photo1url = data.settings.photo1url;
+					cur_video1id = data.settings.video1id;
+					}
+					if (!data.settings.caption1) data.settings.caption1 = "";
+					if (data.settings.caption1 != $("#photo1").attr("title"))
+					{
+						$("#photo1").attr("title", data.settings.caption1);
+						$("#photo1").attr("alt", data.settings.caption1);
+					}
+
+					if (data.settings.photo2url != cur_photo2url)
+					{
+						cur_photo2url = data.settings.photo2url;
+						$("#photo2").attr("src", data.settings.photo2url);
+						$("#photo2link").attr("href", "/photopopup?photokey=" + data.settings.photo2key + "&height=" + data.settings.photo2popupheight + "&width=" + data.settings.photo2popupwidth);
+					}
+					if (!data.settings.caption2) data.settings.caption2 = "";
+					if (data.settings.caption2 != $("#photo2").attr("title"))
+					{
+						$("#photo2").attr("title", data.settings.caption2);
+						$("#photo2").attr("alt", data.settings.caption2);
+					}
+
+					if (data.settings.photo3url != cur_photo3url || data.settings.video2id != cur_video2id)
+					{
+						if (cur_video2id)
+							$("#videomsg2").append("Video replaced -- refresh the page to see updates.");
+						else
+						{
+						if (data.settings.video2id)
+							{
+								$("#video2div").prepend("<iframe width=\"320\" height=\"260\" src=\"//www.youtube.com/embed/" + data.settings.video2id + "?rel=0&fs=1\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>");
+								//$("#video2div").prepend("<object width=\"320\" height=\"260\"><param name=\"movie\" value=\"http://www.youtube.com/v/" + data.settings.video2id + "\"></param><param name=\"wmode\" value=\"transparent\"></param><embed src=\"http://www.youtube.com/v/" + data.settings.video2id + "\" type=\"application/x-shockwave-flash\" wmode=\"transparent\" width=\"320\" height=\"260\"></embed></object>");
+								$("#video2div").css("visibility", "visible");
+								$("#photo3div").css("visibility", "hidden");
+							}
+							else
+							{
+								$("#photo3").attr("src", data.settings.photo3url);
+								$("#photo3link").attr("href", "/photopopup?photokey=" + data.settings.photo3key + "&height=" + data.settings.photo3popupheight + "&width=" + data.settings.photo3popupwidth);
+							}
+						}
+						cur_photo3url = data.settings.photo3url;
+						cur_video2id = data.settings.video2id;
+					}
+					if (!data.settings.caption3) data.settings.caption3 = "";
+					if (data.settings.caption3 != $("#photo3").attr("title"))
+					{
+						$("#photo3").attr("title", data.settings.caption3);
+						$("#photo3").attr("alt", data.settings.caption3);
+					}
+				}
+
+
+				if (!data.settings.pagetitle) data.settings.pagetitle = "";
+				if (data.settings.pagetitle != normaltitle)
+				{
+					normaltitle = data.settings.pagetitle;
+					document.title = data.settings.pagetitle;
+				}
+				if ("/stylesheets/" + data.settings.theme != $("#theme_stylesheet").attr("href")) {
+					console.log("data.settings.theme=" + data.settings.theme);
+					console.log('$("#theme_stylesheet").attr("href")=' + $("#theme_stylesheet").attr("href"));
+					$("#theme_stylesheet").attr("href", "/stylesheets/" + data.settings.theme);
+				}
+			}
+		}
+		function addtochat()
+		{
+			if (getnewpostspending || addingnewpostpending) return;
+			getnewpostspending = true;
+			if (chat_messages) {
+				var lastsortindex = chat_messages[0].sortindex;
+				$.ajax({
+					url: "/newposts",
+					dataType: 'json',
+					data: { sortindex: lastsortindex },
+					timeout: 10000,
+					success: function(data, textStatus){
+						if (data.chat_messages) {
+							if (pending_chat_messages.length > 0) {
+								for (var i=0; i<data.chat_messages.length; i++) {
+									var msg = data.chat_messages[i];
+									if (msg.team_key_name == team_key_name) {
+										for (var j=0; j<pending_chat_messages.length; j++) {
+											var pendingmsg = pending_chat_messages[j];
+											if (pendingmsg.local_id == msg.local_id) {
+												if (pendingmsg.id)
+													$("#message" + pendingmsg.id).remove();
+												else
+													$("#pendingMessage" + pendingmsg.local_id).remove();
+												pending_chat_messages.splice(j, 1);
+												break;
+											}
+										}
+									}
+									if (pending_chat_messages.length == 0) break;
+								}
+							}
+							displayJsonData(data);
+							chat_messages = data.chat_messages.concat(chat_messages);
+						}
+						if (pending_chat_messages.length > 0) {
+							for (var i=0; i<pending_chat_messages.length; i++) {
+								var pendingmsg = pending_chat_messages[i];
+								var seconds_ago = (new Date() - stringToDate(pendingmsg.date)) / 1000;
+								if (seconds_ago >= 7.0) {
+									$("#pendingMessage" + pendingmsg.local_id).addClass("errorChatMessage");
+								}
+							}
+						}
+						$("#last_autorefresh_info").removeClass("autoRefreshError");
+						$("#last_autorefresh_info").empty();
+						$("#last_autorefresh_info").append("Last autorefresh at " + formatTime(stringToDate(data.currenttime)));
+					}
+				}).error(function() {
+					$("#last_autorefresh_info").addClass("autoRefreshError");
+				}
+				).complete(function() {getnewpostspending = false;});
+			}
+		}
+
+		function blinkerFocus() {
+			if (blinkTimer)
+				window.clearTimeout(blinkTimer);
+			if (blinkingTitlePosterNames.length > 0) {
+				blinkingTitlePosterNames = [];
+				blinkingTitleIndex = -1;
+			}
+			document.title = normaltitle;
+			lostFocus=false;
+			//console.log(new Date().toString() + " - onfocus");
+		}
+		function blinkerBlur() {
+			lostFocus = true;
+			//console.log(new Date().toString() + " - blur");
+		}
+		$(document).ready(function(){
+			$(window).bind("focus", blinkerFocus);
+			$(window).bind("blur", blinkerBlur);
+			focusTrashInput();
+			var i = setInterval(addtochat,3000);
+		});
+
+		function focusTrashInput() {
+			$("#trashform :input:visible:enabled:first").focus();
+		}
+		function retryMessage(localId) {
+			for (var i=0; i<pending_chat_messages.length;i++) {
+				var pendingmsg = pending_chat_messages[i];
+				if (pendingmsg.local_id == localId) {
+					var text = pendingmsg.text;
+					pending_chat_messages.splice(i, 1);
+					postMessage(text, localId, true);
+					$("#pendingMessage" + localId).removeClass("errorChatMessage");
+				}
+			}
+		}
+		function postMessage(text, localId, retry) {
+			if (!retry) retry = false;
+			addingnewpostpending = true;
+			var lastsortindex = "";
+			if (chat_messages) lastsortindex = chat_messages[0].sortindex;
+			$.ajax({type: "POST",
+				dataType: "json",
+				url: "/posttochat",
+				timeout: 10000,
+				data: {trash: text, sortindex: lastsortindex, local_id: localId, retry: retry},
+				success: function(data, textStatus){
+					if (data.new_msg) {
+						var msg = data.new_msg;
+						if (msg.local_id)
+							$("#pendingMessage" + msg.local_id).remove();
+						displayJsonData({chat_messages: [msg]});
+
+						//chat_messages = data.chat_messages.concat(chat_messages);
+						pending_chat_messages.push(msg);
+						for (var j=0; j<pending_chat_messages.length; j++) {
+							var pendingmsg = pending_chat_messages[j];
+							if (pendingmsg.local_id == msg.local_id) {
+								pending_chat_messages.splice(j, 1);
+								break;
+							}
+						}
+					} else {
+						pending_chat_messages.push({'local_id': localId, text: text, date: new Date() + ''});
+					}
+				},
+				error: function(XMLHttpRequest, textStatus) {
+					pending_chat_messages.push({'local_id': localId, text: text, date: new Date() + ''});
+					$("#pendingMessage" + localId).addClass("errorChatMessage");
+				},
+				complete: function(XMLHttpRequest, textStatus) {addingnewpostpending = false;}
+			});
+		}
+		function ajaxpost(f)
+		{
+			if (addingnewpostpending) return false;
+
+			var localId = (new Date()).getTime() + 0;
+			//var html = $("#chatMessages").html();
+			//html = "<li id=\"pendingMessage" + localId + "\" class=\"pendingMessage\"><b>" + team_owner_name + " (" + formatDate(new Date()) + ")</b> <span>" + f["trash"].value + "</span> <a href=\"#\" onclick=\"retryMessage(" + localId + ");focusTrashInput();return false;\" class=\"pendingMessageRetry\">retry</a><br /></li>" + html;
+			//$("#chatMessages").html(html);
+			var p = "<li id=\"pendingMessage" + localId + "\" class=\"pendingMessage\"><b>" + team_owner_name + " (" + formatDate(new Date()) + ")</b> <span>" + f["trash"].value + "</span> <a href=\"#\" onclick=\"retryMessage(" + localId + ");focusTrashInput();return false;\" class=\"pendingMessageRetry\">retry</a><br /></li>";
+			$("#chatMessages").prepend(p);
+			postMessage(f["trash"].value, localId);
+			f["trash"].value = "";
+			return false;
+		}
+		function get_more_messages()
+		{
+			$.getJSON("/nextchatpage",
+				{ firstsortindex: chat_messages[chat_messages.length-1].sortindex },
+				function(data, textStatus){
+					if (data.chat_messages) {
+						displayJsonData(data, true, true);
+						chat_messages = chat_messages.concat(data.chat_messages);
+					}
+					if (!data.has_more)
+						$("#more-data-loader").css("display", "none");
+				}
+			);
+		}
+	</script>
+</html>

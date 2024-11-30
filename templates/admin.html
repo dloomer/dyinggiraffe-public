@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>dyinggiraffe.com | Admin</title>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+{% if firefox_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/firewin.css" />
+{% endif %}
+{% if ie_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/iewin.css" />
+{% endif %}
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="javascript/thickbox-compressed.js"></script>
+<script language="javascript">
+	function switchtheme()
+	{
+		$("#theme_stylesheet").attr("href", "/stylesheets/" + ($("#theme").val()));
+	}
+</script>
+<script language="javascript">$(window).load(function() {$("#adminform :input:visible:enabled:first").focus();});</script>
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper"><a href="/">dyinggiraffe.com</a> | <a href="/dashboard/prefs">{{team_owner_name}}</a></div>
+      <div id="topnav-toolbar-wrapper">
+        <form method="get" action="/dashboard/chat">
+          <a href="/">Chat</a> | <a href="/fantasy">Cap</a> | <a href="/fantasy/pickem">Pick 'Em</a> | <a href="https://drive.google.com/file/d/0B4Pv8fdYxaAmOGZYQVlZbFJDSTBzRUozazh2c1hMcm15Q0RF/view" target="_blank">#RTFRB</a> | <a href="/logout">Log Out</a> | <input type="hidden" name="action" value="search"><input type="text" class="textbox" name="keywords"><input type="hidden" name="year" value="0"> <input class="submit" type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container">
+    <div class="section-wrapper">
+	    <div id="dashboard-tabs">
+			<div class="selected-tab">Admin</div>
+			<div class="nonselected-tab"><a href="/dashboard/prefs">Personal Prefs</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/chat">Chat Archive</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/photos">Photo and Video Archive</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/stats">Stats</a></div>
+			<div class="tab-right-filler">&nbsp;</div>
+		</div>
+		<br clear="all"/>
+		<br/>
+		<form id="adminform" method="post">
+		<table>
+		<tr>
+		<td>Page Title:</td><td><div class="camera-spacer"></div> <input class="textbox" name="title" value="{{title|escape}}" maxlength=100 size=50></td>
+		</tr>
+		<tr>
+		<td colspan="2"><i>(per Andy's request, make sure the title is "safe for work").</i></td>
+		</tr>
+		<tr>
+		<td colspan="2">&nbsp;</td>
+		</tr>
+		<tr>
+		<td>Horizontal (landscape) Photo/Video #1 URL:</td><td><a class="camera-icon thickbox" href="/image_upload?height=112&width=450&target_id=url1_input&replace=true&TB_iframe=true" title="Upload an image"></a> <input class="textbox" name="url1" id="url1_input" value="{{url1}}" maxlength=200 size=80></td>
+		</tr>
+		<tr>
+		<td>Alt tag (mouse-over caption):</td><td><div class="camera-spacer"></div> <input class="textbox" name="caption1" value="{{caption1|escape}}" maxlength=100 size=80></td>
+		</tr>
+		<tr>
+		<td colspan="2">&nbsp;</td>
+		</tr>
+		<tr>
+		<td>Vertical (portrait) Photo URL:</td><td><a class="camera-icon thickbox" href="/image_upload?height=112&width=450&target_id=url2_input&replace=true&TB_iframe=true" title="Upload an image"></a> <input class="textbox" name="url2" id="url2_input" value="{{url2}}" maxlength=200 size=80></td>
+		</tr>
+		<tr>
+		<td>Alt tag:</td><td><div class="camera-spacer"></div> <input class="textbox" name="caption2" value="{{caption2|escape}}" maxlength=100 size=80></td>
+		</tr>
+		<tr>
+		<td colspan="2">&nbsp;</td>
+		</tr>
+		<tr>
+		<td>Horizontal (landscape) Photo/Video #2 URL:</td><td><a class="camera-icon thickbox" href="/image_upload?height=112&width=450&target_id=url3_input&replace=true&TB_iframe=true" title="Upload an image"></a> <input class="textbox" name="url3" id="url3_input" value="{{url3}}" maxlength=200 size=80></td>
+		</tr>
+		<tr>
+		<td>Alt tag:</td><td><div class="camera-spacer"></div> <input class="textbox" name="caption3" value="{{caption3|escape}}" maxlength=100 size=80></td>
+		</tr>
+		<tr>
+		<td colspan="2">&nbsp;</td>
+		</tr>
+		<tr>
+		<td>Theme:</td><td>
+			<div class="camera-spacer"></div> <select id="theme" name="theme" value="{{theme}}" onchange="switchtheme()">
+		        {% for thistheme in themes %}
+					<option {% if thistheme.stylesheet == theme %}selected{% endif %} value="{{thistheme.stylesheet}}">{{thistheme.name}}</option>
+		        {% endfor %}
+			</select></td>
+		</tr>
+		<tr>
+		<td colspan="2">&nbsp;</td>
+		</tr>
+		</table>
+		<input id="admin-submit" type="submit" value="Submit"><br>
+		<br/>
+		</form>
+   </div>
+  <div class="section-bottom"></div>
+</body>
+</html>

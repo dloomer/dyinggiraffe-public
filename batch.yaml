@@ -1,0 +1,19 @@
+module: batch
+runtime: python27
+api_version: 1
+threadsafe: true
+
+instance_class: B1
+basic_scaling:
+  max_instances: 1
+  idle_timeout: 10m
+
+handlers:
+- url: /batch/(.*)
+  script: batch.app
+
+- url: /fantasystatsload
+  script: fantasystatsload.app
+
+- url: /fantasystatsload/(.*)
+  script: fantasystatsload.app

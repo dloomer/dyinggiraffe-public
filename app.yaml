@@ -1,0 +1,92 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+default_expiration: "1m"
+
+builtins:
+- remote_api: on
+
+libraries:
+- name: jinja2
+  version: "2.6"
+
+handlers:
+- url: /favicon.ico
+  static_files: favicon.ico
+  upload: favicon.ico
+
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /javascript
+  static_dir: javascript
+
+- url: /images
+  static_dir: images
+
+- url: /dashboard
+  script: dashboard.app
+
+- url: /dashboard/(.*)
+  script: dashboard.app
+
+- url: /dashboard/(.*)/(.*)
+  script: dashboard.app
+
+- url: /batch/(.*)
+  script: batch.app
+
+- url: /fantasystatsload
+  script: fantasystatsload.app
+
+- url: /fantasystatsload/(.*)
+  script: fantasystatsload.app
+
+- url: /pickembot/(.*)
+  script: fantasystatsload.app
+
+- url: /mrsports
+  script: fantasystatsload.app
+
+- url: /mrsports2
+  script: fantasystatsload.app
+
+- url: /mrsports3
+  script: fantasystatsload.app
+
+- url: /mrsports4
+  script: fantasystatsload.app
+
+- url: /fantasy
+  script: fantasy.app
+
+- url: /fantasy/(.*)
+  script: fantasy.app
+
+- url: /cap_trades
+  script: fantasy.app
+
+- url: /tasks/(.*)
+  script: tasks.app
+
+- url: /mapreduce/pipeline/images
+  static_dir: mapreduce/lib/pipeline/ui/images
+
+- url: /admin/.*
+  script: google.appengine.ext.admin.application
+  login: admin
+
+- url: /mapreduce(/.*)?
+  script: mapreduce.main.APP
+
+- url: /mapreduce_demo/.*
+  script: mapreduce_demo.main.app
+  login: required
+
+- url: .*
+  script: main.app

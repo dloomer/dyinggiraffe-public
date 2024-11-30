@@ -1,0 +1,4 @@
+backends:
+- name: batch
+  class: B1
+  options: dynamic

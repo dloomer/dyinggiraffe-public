@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>dyinggiraffe.com | Pick 'em</title>
+    <link type="text/css" rel="stylesheet" href="http://www.google.com/uds/modules/gviz/1.0/table/table.css" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+{% if firefox_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/firewin.css" />
+{% endif %}
+{% if ie_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/iewin.css" />
+{% endif %}
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="application/javascript">
+</script>
+
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper"><a href="/">dyinggiraffe.com</a> | <a href="/dashboard/prefs">{{team_owner_name}}</a></div>
+      <div id="topnav-toolbar-wrapper">
+        <form method="get" action="/dashboard/chat">
+          <a href="/">Chat</a> | <a href="/dashboard">Dashboard</a> | <a href="/logout">Log Out</a> | <input type="hidden" name="action" value="search"><input type="text" class="textbox" name="keywords"><input type="hidden" name="year" value="0"> <input class="submit" type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container">
+    <div class="section-wrapper">
+	    <div id="dashboard-tabs">
+			<div class="nonselected-tab"><a href="/fantasy/pickem">Picks</a></div>
+			<div class="selected-tab">Standings</div>
+			<div class="tab-right-filler">&nbsp;</div>
+		</div>
+		<br clear="all"/>
+		<div id="pickem-body">
+			<div id="pickem-content">
+				<br clear="all"/>
+				<div>
+					<div style="overflow:auto;display:inline-block;">
+						<table class="google-visualization-table-table">
+						<tbody>
+						<tr class="google-visualization-table-tr-head">
+							<td class="google-visualization-table-td">Team</td>
+							{% for week in standings_grid.weeks %}
+							<td class="google-visualization-table-td">Wk<br/>{{week.weeknumber}}</td>
+							{% endfor %}
+							<td class="google-visualization-table-td">Total</td>
+						</tr>
+					{% for entrant in standings_grid.entrants %}
+						<tr class="google-visualization-table-tr-{{ loop.cycle('odd','even') }}">
+							<td class="google-visualization-table-td">{{entrant.name}}</td>
+							{% for week_score in entrant.week_scores %}
+							<td class="google-visualization-table-td">
+								{% if week_score.score < 0 %}-{% else %}{% if week_score.is_late %}<span class="late-pickem-entry" title="{{week_score.late_duration_str}} late">{{week_score.score}} *</span>{% else %}{{week_score.score}}{% endif %}{% endif %}
+							</td>
+							{% endfor %}
+							<td class="google-visualization-table-td">{{entrant.total_score}}</td>
+						</tr>
+					{% endfor %}
+						</tbody>
+						</table>
+					<br clear="all"/>
+					</div>
+				</div>
+			</div>
+		</div>
+   </div>
+   <div class="section-bottom"></div>
+</body>
+</html>

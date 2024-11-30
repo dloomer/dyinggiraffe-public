@@ -1,0 +1,68 @@
+upon post:
+==========
+-- increment count of corresponding hour, day, month, year, and alltime timespans by one in StatsTimeSpan (create if needed)
+-- get unique posters for current hour.  if it increases, add that to the unique poster counts of corrsponding day, month, year, alltime timespan in StatsTimeSpan
+-- incremement team's post count by one in corresponding hour, day, month, year, and alltime timespans of TeamChatMessageStats (create if needed)
+-- all of above in single transaction
+
+upon submit of PageSettings:
+============================
+-- Find latest hour timespan for each video, picture, caption, title in YouTubeVideoStats etc. in previous PageSettings record but not in new one
+-- If exists with no end time, fill in duration if it's not the current hour and duration isn't filled in.  Duration will be 1 hour if there is no start time, otherwise less than one hour
+-- If duration is newly filled in, add to duration of corresponding day, month, year, and alltime timespans.
+-- Create hour timespans for all hours after last existing one, including the current hour.  Duration is 60 unless current hour (in which case it's calculated, and end time is filled in), add to duration of corresponding day, month, year, and alltime timespans
+-- Find latest hour timespan for each video, picture, caption, title in YouTubeVideoStats etc. in current PageSettings record
+-- If none exists, start time=now
+-- If exists, but has end time, start time=now
+-- If exists with no end time, fill in duration if it's not the current hour and duration isn't filled in.  Duration will be 1 hour if there is no start time, otherwise less than one hour
+-- If duration is newly filled in, add to duration of corresponding day, month, year, and alltime timespans.
+-- Create hour timespans for all hours after last existing one, not including the current hour.  Duration is 60, add to duration of corresponding day, month, year, and alltime timespans
+-- When running a report, perform all above steps beginning with "Find latest hour timespan for each video, picture, caption, title in YouTubeVideoStats etc. in current PageSettings record"
+
+
+Additional features
+==================
+x Firefox, IE
+x August 2008 user volume
+x Trent's duplicate stats
+- year, all-time stats messed up
+x Blagdoggervich
+x dyinggiraffe.com
+- dates on early photos (up through 2007-03-23 20:53:20.000100) (first 819 photos changed from UTC to Central, then first 142 changed back)
+x pagination
+x "red x" graphic
+- Photo archive date ranges link to chat archive, or, store elementkeys on ChatMessage entities
+- batch
+x google accounts
+- custom filters
+x disable chat words link for now
+x pagesettings stats load
+x missing 200 posts from 2006, 2000 from 2008
+x \N captions
+x Tracking of popular words
+x personal prefs (don't show images)
+- include draft picks
+x team by team graph
+x records page (with links to archives)
+x day of month in archive pages
+x chart percentage of all posts by day, month for single person
+x prevent creation of duplicate photo when entering URL of photo on dyg domain
+x finish photo etc. stats page
+- purge stop words
+x ratings
+x links to first usage, all in photo/video/etc stats tables?
+- archive.org?
+- some solution to make post counts are not updated on SettingsElementStats until after they are finalized on StatsTimeSpan.  Only run page settings stats overnight? (always do messages first; only do page settings up until top of current hour)
+
+SELECT title,photourl1 as url1,photourl2 as url3,photourl3 as url2, photocaption1 as caption1, photocaption3 as caption2, photocaption2 as caption3, updatedatetime, updateteamid, updateipaddress
+INTO OUTFILE 'pagesettings.csv'
+  FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  FROM fantasydraft_dbo.pagesettings p order by updatedatetime;
+
+
+SELECT TeamID,Text,DateTime,IPAddress
+INTO OUTFILE 'chatmessage.csv'
+  FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  FROM fantasydraft_dbo.trash p order by datetime;

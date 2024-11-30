@@ -1,0 +1,11 @@
+DIV#topnav-section-container {
+	height:26px;
+}
+DIV#topnav-toolbar-wrapper {
+	padding-top:1px;
+}
+INPUT.submit {
+	height: 22px;
+	padding-top: -1px;
+	margin-top: 2px;
+}

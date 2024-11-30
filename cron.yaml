@@ -1,0 +1,14 @@
+cron:
+- description: salary cap
+  url: /fantasystatsload?endtoend=true&backend=true
+  schedule: every day 04:00
+  timezone: America/Chicago
+  
+#- description: memcache assertions
+#  url: /batch/memcache_assertions
+#  schedule: every 5 mins
+
+- description: Pick 'em bots
+  url: /pickembot/start
+  schedule: every day 08:00
+  timezone: America/Chicago

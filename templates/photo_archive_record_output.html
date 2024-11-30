@@ -1,0 +1,69 @@
+{% for settingsrecord in settingsrecords %}
+  <div>
+     <div class="mini-media-element-wrapper" style="width:205px;">
+       <div id="photo1div" class="mini-landscape-photo-wrapper" style="visibility:{% if settingsrecord.video1 %} hidden {% else %} visible {% endif %}">
+		 <a id="photo1link" href="/photopopup?photokey={% if settingsrecord.photo1 %}{{settingsrecord.photo1.key()}}&height={{settingsrecord.photo1.popupheight()}}&width={{settingsrecord.photo1.popupwidth()}}{% endif %}" class="thickbox" title="{{settingsrecord.caption3text}}">
+           <img id="photo1" border="0" src="{% if settingsrecord.photo1 %}{% if settingsrecord.photo1.photodata %}/localimg?photokey={{settingsrecord.photo1.key()}}&thumbnail=true{% else %}{% if settingsrecord.photo1.photo_blob_key %}/blobstore/{{settingsrecord.photo1.photo_blob_key}}?url={{settingsrecord.photo1.url}}{% else %}{% if settingsrecord.photo1.photo_gcs_blob_key %}{{settingsrecord.photo1.serving_url()}}{% else %}/images/notfound.gif{% endif %}{% endif %}{% endif %}{% endif %}" title="{{settingsrecord.caption3text}}" alt="{{settingsrecord.caption3text}}" width="200" height="163">
+         </a>
+       </div>
+       <div id="video1div" class="mini-video-wrapper" style="visibility:{% if settingsrecord.video1 %} visible {% else %} hidden {% endif %};">
+   {% if settingsrecord.video1 %}
+		 <a id="video1link" href="/videopopup?videokey={{settingsrecord.video1.key()}}&height=344&width=435" class="thickbox" title="{{settingsrecord.video1title}}">
+          <img id="video1" border="0" src="/localimg?videokey={{settingsrecord.video1.key()}}&thumbnail=true" title="{{settingsrecord.video1title}}" alt="{{settingsrecord.video1title}}" width="200" height="150">
+			<div class="mini-video-overlay-wrapper"><img border="0" src="/images/youtube_bg.gif" height="163" width="200"></div>
+         </a>
+   {% endif %}
+       </div>
+     </div>
+
+     <div class="mini-media-element-wrapper" style="width:130px;">
+      <div id="photo2div" class="mini-portrait-photo-wrapper">
+		 <a id="photo2link" href="/photopopup?photokey={{settingsrecord.photo2.key()}}&height={{settingsrecord.photo2.popupheight()}}&width={{settingsrecord.photo2.popupwidth()}}" class="thickbox" title="{{settingsrecord.caption2text}}">
+           <img id="photo2" border="0" src="{% if settingsrecord.photo2.photodata %}/localimg?photokey={{settingsrecord.photo2.key()}}&thumbnail=true{% else %}{% if settingsrecord.photo2.photo_blob_key %}/blobstore/{{settingsrecord.photo2.photo_blob_key}}?url={{settingsrecord.photo2.url}}{% else %}{% if settingsrecord.photo2.photo_gcs_blob_key %}{{settingsrecord.photo2.serving_url()}}{% else %}/images/notfound.gif{% endif %}{% endif %}{% endif %}" title="{{settingsrecord.caption2text}}" alt="{{settingsrecord.caption2text}}" width="125" height="163">
+         </a>
+      </div>
+    </div>
+
+    <div class="mini-media-element-wrapper" style="width:200px;">
+       <div id="photo3div" class="mini-landscape-photo-wrapper" style="visibility:{% if settingsrecord.video2 %} hidden {% else %} visible {% endif %}">
+		 <a id="photo3link" href="/photopopup?photokey={% if settingsrecord.photo3 %}{{settingsrecord.photo3.key()}}&height={{settingsrecord.photo3.popupheight()}}&width={{settingsrecord.photo3.popupwidth()}}{% endif %}" class="thickbox" title="{{settingsrecord.caption3text}}">
+           <img id="photo3" border="0" src="{% if settingsrecord.photo3 %}{% if settingsrecord.photo3.photodata %}/localimg?photokey={{settingsrecord.photo3.key()}}&thumbnail=true{% else %}{% if settingsrecord.photo3.photo_blob_key %}/blobstore/{{settingsrecord.photo3.photo_blob_key}}?url={{settingsrecord.photo3.url}}{% else %}{% if settingsrecord.photo1.photo_gcs_blob_key %}{{settingsrecord.photo3.serving_url()}}{% else %}/images/notfound.gif{% endif %}{% endif %}{% endif %}{% endif %}" title="{{settingsrecord.caption3text}}" alt="{{settingsrecord.caption3text}}" width="200" height="163">
+         </a>
+       </div>
+       <div id="video2div" class="mini-video-wrapper" style="visibility:{% if settingsrecord.video2 %} visible {% else %} hidden {% endif %};">
+   {% if settingsrecord.video2 %}
+		 <a id="video12ink" href="/videopopup?videokey={{settingsrecord.video2.key()}}&height=344&width=435" class="thickbox" title="{{settingsrecord.video2title}}">
+          <img id="video2" border="0" src="/localimg?videokey={{settingsrecord.video2.key()}}&thumbnail=true" title="{{settingsrecord.video2title}}" alt="{{settingsrecord.video2title}}" width="200" height="150">
+			<div class="mini-video-overlay-wrapper"><img border="0" src="/images/youtube_bg.gif" height="163" width="200"></div>
+         </a>
+   {% endif %}
+       </div>
+    </div>
+	<div class="photo-archive-info" style="position:relative;float:left;padding:10px;width:290px">
+		<b>Page Title:</b> {{settingsrecord.pagetitle.text}}<br/>
+		<b>Time:</b> {{settingsrecord.displaydate()}} - {{settingsrecord.displayenddate()}}<br/>
+		<br/>
+		{% if settingsrecord.video1title %}
+		<b>Left Video:</b> {{settingsrecord.video1title}}<br/>
+		{% else %}
+		{% if settingsrecord.caption1text %}
+		<b>Left Caption:</b> {{settingsrecord.caption1text}}<br/>
+		{% endif %}
+		{% endif %}
+		{% if settingsrecord.caption2text %}
+		<b>Middle Caption:</b> {{settingsrecord.caption2text}}<br/>
+		{% endif %}
+		{% if settingsrecord.video2title %}
+		<b>Right Video:</b> {{settingsrecord.video2title}}<br/>
+		{% else %}
+		{% if settingsrecord.caption3text %}
+		<b>Right Caption:</b> {{settingsrecord.caption3text}}<br/>
+		{% endif %}
+		{% endif %}
+	</div>
+  </div>
+<br clear="all"/>
+<br/>
+<div class="line-divider"></div>
+<br clear="all"/>
+{% endfor %}

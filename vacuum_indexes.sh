@@ -1,0 +1,1 @@
+appcfg.py --no_cookies --email=dloomer@gmail.com --passin vacuum_indexes "/users/david.loomer/Documents/workspace/winnie-cam"

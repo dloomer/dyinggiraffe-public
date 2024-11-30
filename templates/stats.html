@@ -1,0 +1,674 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>dyinggiraffe.com | Stats</title>
+	<link type="text/css" rel="stylesheet" href="/stylesheets/jquery.rater.css" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+{% if firefox_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/firewin.css" />
+{% endif %}
+{% if ie_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/iewin.css" />
+{% endif %}
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="/javascript/thickbox-compressed.js"></script>
+<script type="text/javascript" src="/javascript/jquery.rater.js"></script>
+<script type="text/javascript">
+	var month_letters = "JFMAMJJASOND";
+	{% if showpostchart %}
+	google.load("visualization", "1", {packages:["linechart"]});
+	google.setOnLoadCallback(drawChart);
+	function drawChart() {
+		var data = new google.visualization.DataTable();
+		{% ifnotequal month 0 %}
+		data.addColumn('string', 'Day');
+		{% else %}
+		data.addColumn('string', 'Month');
+		{% endifnotequal %}
+
+		{% ifequal chart "volume" %}
+		data.addColumn('number', 'Unique Users Posting Per Hour');
+		{% else %}
+		{% ifequal chart "participation" %}
+		data.addColumn('number', 'Percentage of All Posts');
+		{% else %}
+		data.addColumn('number', 'Total Posts');
+		{% endifequal %}
+		{% endifequal %}
+		data.addRows({{rows}});
+		var prev_year = 0;
+		var prev_month = 0;
+		{% for statsrecord in statsrecords %}
+			{% ifequal chartresolution 'day' %}
+			var month_string = '';
+			if (prev_month != {{statsrecord.month_central}} && {{month}} == 0) month_string = (month_letters.substr({{statsrecord.month_central}}-1,1));
+		data.setValue({{forloop.counter0}}, 0, month_string + '{{statsrecord.day_central}}');
+			{% else %}
+		var year_string = '';
+		if (prev_year != {{statsrecord.year_central}} && {{year}} == 0) year_string = ('{{statsrecord.year_central}}').substr(2,2);
+		data.setValue({{forloop.counter0}}, 0, month_letters.substr({{statsrecord.month_central}}-1,1) + year_string);
+			{% endifequal %}
+			{% ifequal chart "volume" %}
+		data.setValue({{forloop.counter0}}, 1, {{statsrecord.uniqueteamspostingperhour}});
+			{% else %}
+			{% ifequal chart "participation" %}
+		data.setValue({{forloop.counter0}}, 1, {{statsrecord.postpercentage}});
+			{% else %}
+		data.setValue({{forloop.counter0}}, 1, {{statsrecord.postcount}});
+			{% endifequal %}
+			{% endifequal %}
+		prev_year = {{statsrecord.year_central}};
+		//prev_month = {{statsrecord.month_central}};
+		{% endfor %}
+
+		var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+		chart.draw(data, {width: 740, height: 300, legend: 'bottom', title: '{{charttitle}}', pointSize: 2});
+	}
+	{% endif %}
+	{% if showpostbyuserchart %}
+	google.load("visualization", "1", {packages:["linechart"]});
+	google.setOnLoadCallback(drawChart);
+	function drawChart() {
+		var data = new google.visualization.DataTable();
+		{% ifnotequal month 0 %}
+		data.addColumn('string', 'Day');
+		{% else %}
+		data.addColumn('string', 'Month');
+		{% endifnotequal %}
+
+		data.addRows({{rows}});
+		{% for team_result in team_results %}
+			data.addColumn('number', '{{team_result.0.ownername|escape}}');
+			var prev_year = 0;
+			{% for statsrecord in team_result.3 %}
+				{% ifnotequal month 0 %}
+			data.setValue({{forloop.counter0}}, 0, '{{statsrecord.day_central}}');
+				{% else %}
+			var year_string = '';
+			if (prev_year != {{statsrecord.year_central}} && {{year}} == 0) year_string = ('{{statsrecord.year_central}}').substr(2,2);
+			data.setValue({{forloop.counter0}}, 0, month_letters.substr({{statsrecord.month_central}}-1,1) + year_string);
+				{% endifnotequal %}
+			data.setValue({{forloop.counter0}}, {{forloop.parentloop.counter}}, {{statsrecord.postcount}});
+			prev_year = {{statsrecord.year_central}};
+			{% endfor %}
+		{% endfor %}
+		var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+		chart.draw(data, {width: 740, height: 300, legend: 'bottom', title: '{{charttitle}}', pointSize: 2});
+	}
+	{% endif %}
+	{% if showwordchart %}
+	google.load("visualization", "1", {packages:["linechart"]});
+	google.setOnLoadCallback(drawChart);
+	function drawChart() {
+		var data = new google.visualization.DataTable();
+		{% ifnotequal month 0 %}
+		data.addColumn('string', 'Day');
+		{% else %}
+		data.addColumn('string', 'Month');
+		{% endifnotequal %}
+
+		{% ifequal chart "pct" %}
+		data.addColumn('number', 'Usage as Percentage of All Words');
+		{% else %}
+		data.addColumn('number', 'Total Usage');
+		{% endifequal %}
+		data.addRows({{rows}});
+		var prev_year = 0;
+		{% for statsrecord in statsrecords %}
+			{% ifnotequal month 0 %}
+		data.setValue({{forloop.counter0}}, 0, '{{statsrecord.day_central}}');
+			{% else %}
+		var year_string = '';
+		if (prev_year != {{statsrecord.year_central}} && {{year}} == 0) year_string = ('{{statsrecord.year_central}}').substr(2,2);
+		data.setValue({{forloop.counter0}}, 0, month_letters.substr({{statsrecord.month_central}}-1,1) + year_string);
+			{% endifnotequal %}
+			{% ifequal chart "pct" %}
+		data.setValue({{forloop.counter0}}, 1, {{statsrecord.usagepercentage}});
+			{% else %}
+		data.setValue({{forloop.counter0}}, 1, {{statsrecord.usagecount}});
+			{% endifequal %}
+		prev_year = {{statsrecord.year_central}};
+		{% endfor %}
+
+		var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+		chart.draw(data, {width: 740, height: 300, legend: 'bottom', title: '{{charttitle}}', pointSize: 2});
+	}
+	{% endif %}
+	{% if showwordbyuserchart %}
+	google.load("visualization", "1", {packages:["linechart"]});
+	google.setOnLoadCallback(drawChart);
+	function drawChart() {
+		var data = new google.visualization.DataTable();
+		{% ifnotequal month 0 %}
+		data.addColumn('string', 'Day');
+		{% else %}
+		data.addColumn('string', 'Month');
+		{% endifnotequal %}
+
+		data.addRows({{rows}});
+		{% for team_result in team_results %}
+			data.addColumn('number', '{{team_result.ownername|escape}}');
+			var prev_year = 0;
+			{% for statsrecord in team_result.3 %}
+				{% ifnotequal month 0 %}
+			data.setValue({{forloop.counter0}}, 0, '{{statsrecord.day_central}}');
+				{% else %}
+			var year_string = '';
+			if (prev_year != {{statsrecord.year_central}} && {{year}} == 0) year_string = ('{{statsrecord.year_central}}').substr(2,2);
+			data.setValue({{forloop.counter0}}, 0, month_letters.substr({{statsrecord.month_central}}-1,1) + year_string);
+				{% endifnotequal %}
+			data.setValue({{forloop.counter0}}, {{forloop.parentloop.counter}}, {{statsrecord.usagecount}});
+			prev_year = {{statsrecord.year_central}};
+			{% endfor %}
+		{% endfor %}
+		var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+		chart.draw(data, {width: 740, height: 300, legend: 'bottom', title: '{{charttitle}}', pointSize: 2});
+	}
+	{% endif %}	{% if showwordtable %}
+	google.load("visualization", "1", {packages:["table"]});
+	google.setOnLoadCallback(drawTable);
+	function drawTable() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Word');
+		data.addColumn('number', 'Usages');
+		{% ifequal team "" %}
+		data.addColumn('number', 'Usages x Unique');
+		{% endifequal %}
+		data.addColumn('datetime', 'First Used');
+		data.addColumn('string', 'Archive Links');
+		data.addRows({{rows}});
+		{% for statsrecord in statsrecords %}
+		data.setCell({{forloop.counter0}}, 0, '<a href="#" onclick="goto_word(\'{{statsrecord.word}}\')">{{statsrecord.word}}</a>');
+		data.setCell({{forloop.counter0}}, 1, {{statsrecord.usagecount}});
+		{% ifequal team "" %}
+		data.setCell({{forloop.counter0}}, 2, {{statsrecord.uniqueteamsusagecount}});
+		data.setCell({{forloop.counter0}}, 3, new Date({{statsrecord.worddate_central.year}},{{statsrecord.worddate_central.month}}-1,{{statsrecord.worddate_central.day}},{{statsrecord.worddate_central.hour}},{{statsrecord.worddate_central.minute}},{{statsrecord.worddate_central.second}}));
+		data.setCell({{forloop.counter0}}, 4, "<a href='/dashboard/chat?action=search&keywords={{statsrecord.word}}&year=0'>all</a> | <a href='/dashboard/chat?action=search&keywords={{statsrecord.word}}&year={{statsrecord.worddate_central.year}}&month={{statsrecord.worddate_central.month}}&day={{statsrecord.worddate_central.day}}&hour={{statsrecord.worddate_central.hour}}'>first used</a>");
+		{% else %}
+		data.setCell({{forloop.counter0}}, 2, new Date({{statsrecord.date_central.year}},{{statsrecord.date_central.month}}-1,{{statsrecord.date_central.day}},{{statsrecord.date_central.hour}},{{statsrecord.date_central.minute}},{{statsrecord.date_central.second}}));
+		data.setCell({{forloop.counter0}}, 3, "<a href='/dashboard/chat?action=search&keywords={{statsrecord.word}}&team={{team}}&year=0'>all</a> | <a href='/dashboard/chat?action=search&keywords={{statsrecord.word}}&team={{team}}&year={{statsrecord.date_central.year}}&month={{statsrecord.date_central.month}}&day={{statsrecord.date_central.day}}&hour={{statsrecord.date_central.hour}}'>first used</a>");
+		{% endifequal %}
+		{% endfor %}
+
+		var table = new google.visualization.Table(document.getElementById('table_div'));
+
+		var formatter = new google.visualization.NumberFormat({fractionDigits: 0});
+		formatter.format(data, 1); // Apply formatter to second column
+		{% ifequal team "" %}
+		formatter.format(data, 2); // Apply formatter to third column
+		{% endifequal %}
+
+		table.draw(data, {showRowNumber: true, allowHtml: true});
+	}
+	{% endif %}
+	{% if showsettingselementtable %}
+
+	google.load("visualization", "1", {packages:["table"]});
+	google.setOnLoadCallback(drawTable);
+	function drawTable() {
+		var data = new google.visualization.DataTable();
+		{% ifequal section "photos"%}
+		data.addColumn('string', 'Photo');
+		{% endifequal %}
+		{% ifequal section "videos"%}
+		data.addColumn('string', 'Video');
+		{% endifequal %}
+		{% ifequal section "captions"%}
+		data.addColumn('string', 'Caption');
+		{% endifequal %}
+		{% ifequal section "titles"%}
+		data.addColumn('string', 'Title');
+		{% endifequal %}
+		{% ifequal section "themes"%}
+		data.addColumn('string', 'Theme');
+		{% endifequal %}
+		data.addColumn('number', 'Days');
+		data.addColumn('number', 'Chat Posts');
+		data.addColumn('number', 'Volume');
+		data.addColumn('date', 'First Appeared');
+		data.addColumn('string', 'Archive');
+		data.addColumn('number', 'Tot Rtg');
+		data.addColumn('number', 'Avg Rtg');
+		data.addColumn('number', 'My Rtg');
+		data.addRows({{rows}});
+		{% for statsrecord in statsrecords %}
+		{% ifequal section "photos"%}
+		data.setCell({{forloop.counter0}}, 0, '<a id="photolink"  href="/photopopup?photokey={{statsrecord.element.key}}&height={{statsrecord.element.popupheight}}&width={{statsrecord.element.popupwidth}}" class="thickbox"><img id="photo" border="0" src="{% if statsrecord.element.photodata %}/localimg?photokey={{statsrecord.element.key}}&thumbnail=true{% else %}/images/notfound.gif{% endif %}" width="125" height="163"></a>');
+		{% endifequal %}
+		{% ifequal section "videos"%}
+		data.setCell({{forloop.counter0}}, 0, "<a id=\"videolink\"  href=\"/videopopup?videokey={{statsrecord.element.key}}&height=344&width=435\" class=\"thickbox\"><img id=\"photo\" border=\"0\" src=\"/localimg?videokey={{statsrecord.element.key}}&thumbnail=true\" width=\"125\" height=\"94\"></a><br/><span style=\"font-size:0.8em;\">{{statsrecord.element.compact_title|addslashes}}</span>");
+		{% endifequal %}
+		{% ifequal section "captions"%}
+		data.setCell({{forloop.counter0}}, 0, "{{statsrecord.element.text|addslashes}}");
+		{% endifequal %}
+		{% ifequal section "titles"%}
+		data.setCell({{forloop.counter0}}, 0, "{{statsrecord.element.text|addslashes}}");
+		{% endifequal %}
+		{% ifequal section "themes"%}
+		data.setCell({{forloop.counter0}}, 0, '{{statsrecord.element.name}}');
+		{% endifequal %}
+		data.setCell({{forloop.counter0}}, 1, {{statsrecord.durationindays}});
+		data.setCell({{forloop.counter0}}, 2, {{statsrecord.postcount}});
+		data.setCell({{forloop.counter0}}, 3, {{statsrecord.uniqueteamspostingcount}});
+		data.setCell({{forloop.counter0}}, 4, new Date({{statsrecord.element.date_central.year}},{{statsrecord.element.date_central.month}}-1,{{statsrecord.element.date_central.day}},{{statsrecord.element.date_central.hour}},{{statsrecord.element.date_central.minute}},{{statsrecord.element.date_central.second}}));
+		data.setCell({{forloop.counter0}}, 5, "<a href='/dashboard/photos?action=search&elementkey={{statsrecord.element.key}}&year=0'>all</a>&nbsp;|&nbsp;<a href='/dashboard/photos?action=search&elementkey={{statsrecord.element.key}}&year={{statsrecord.element.date_central.year}}&month={{statsrecord.element.date_central.month}}&day={{statsrecord.element.date_central.day}}&hour={{statsrecord.element.date_central.hour}}'>first</a>");
+		data.setCell({{forloop.counter0}}, 6, {{statsrecord.element.totalrating}});
+		data.setCell({{forloop.counter0}}, 7, {{statsrecord.element.average_rating}}, "<div id=\"rating_{{statsrecord.element.key}}_results\"><div class=\"statVal\"><span class=\"ui-rater\"><span class=\"ui-rater-mini-starsOff\" style=\"width:60px;\"><span class=\"ui-rater-mini-starsOn\" style=\"width:{{statsrecord.element.star12ratingwidth}}px\"></span></span></span></div><span style=\"font-size:0.9em;\"><span class=\"ui-rater-rating\" style=\"font-size:0.9em\">{{statsrecord.element.display_average_rating}}</span>&#160;(<span class=\"ui-rater-rateCount\" style=\"font-size:0.9em;margin:0;padding:0\">{{statsrecord.element.totalraters}}</span>)</span></div>");
+		data.setCell({{forloop.counter0}}, 8, {{statsrecord.element.my_displayrating}}, "<div id=\"rating_{{statsrecord.element.key}}\" class=\"myrating\"><div class=\"statVal\"><span class=\"ui-rater\"><span class=\"ui-rater-mini-starsOff\" style=\"width:60px;\"><span class=\"ui-rater-mini-starsOn\" style=\"width:{{statsrecord.element.my_star12ratingwidth}}px\"></span></span></span></div></div>");
+		{% endfor %}
+
+		var table = new google.visualization.Table(document.getElementById('table_div'));
+
+		var decimalformatter = new google.visualization.NumberFormat();
+		decimalformatter.format(data, 1); // Apply formatter to second column
+		var integerformatter = new google.visualization.NumberFormat({fractionDigits: 0});
+		integerformatter.format(data, 2); // Apply formatter to third column
+		integerformatter.format(data, 3); // Apply formatter to fourth column
+
+		table.draw(data, {showRowNumber: true, allowHtml: true});
+		$('.myrating').each(function(){ $(this).rater({ postHref: '/rate_element', mini:true }); });
+		tb_init('a.thickbox');
+	}
+	{% endif %}
+	{% if showrecordstable %}
+	google.load("visualization", "1", {packages:["table"]});
+	google.setOnLoadCallback(drawTable);
+	function drawTable() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Record');
+		data.addColumn('string', 'Record Holder');
+		data.addColumn('string', 'Runner-Up');
+		data.addRows(4);
+		data.setCell(0, 0, "Most Posts, Year");
+		data.setCell(0, 1, '<a href="/dashboard/chat?action=search&year={{siterows.0.0.year_central}}">{{siterows.0.0.displaypostcount}} ({{siterows.0.0.year_central}})</a>');
+		data.setCell(0, 2, '<a href="/dashboard/chat?action=search&year={{siterows.0.1.year_central}}">{{siterows.0.1.displaypostcount}} ({{siterows.0.1.year_central}})</a>');
+
+		data.setCell(1, 0, "Most Posts, Month");
+		data.setCell(1, 1, '<a href="/dashboard/chat?action=search&year={{siterows.1.0.year_central}}&month={{siterows.1.0.month_central}}">{{siterows.1.0.displaypostcount}} ({{siterows.1.0.monthname}} {{siterows.1.0.year_central}})</a>');
+		data.setCell(1, 2, '<a href="/dashboard/chat?action=search&year={{siterows.1.1.year_central}}&month={{siterows.1.1.month_central}}">{{siterows.1.1.displaypostcount}} ({{siterows.1.1.monthname}} {{siterows.1.1.year_central}})</a>');
+
+		data.setCell(2, 0, "Most Posts, Day");
+		data.setCell(2, 1, '<a href="/dashboard/chat?action=search&year={{siterows.2.0.year_central}}&month={{siterows.2.0.month_central}}&day={{siterows.2.0.day_central}}">{{siterows.2.0.displaypostcount}} ({{siterows.2.0.monthname}} {{siterows.2.0.day_central}}, {{siterows.2.0.year_central}})</a>');
+		data.setCell(2, 2, '<a href="/dashboard/chat?action=search&year={{siterows.2.1.year_central}}&month={{siterows.2.1.month_central}}&day={{siterows.2.1.day_central}}">{{siterows.2.1.displaypostcount}} ({{siterows.2.1.monthname}} {{siterows.2.1.day_central}}, {{siterows.2.1.year_central}})</a>');
+
+		data.setCell(3, 0, "Most Posts, Hour");
+		data.setCell(3, 1, '<a href="/dashboard/chat?action=search&year={{siterows.3.0.year_central}}&month={{siterows.3.0.month_central}}&day={{siterows.3.0.day_central}}&hour={{siterows.3.0.hour_central}}">{{siterows.3.0.displaypostcount}} ({{siterows.3.0.monthname}} {{siterows.3.0.day_central}}, {{siterows.3.0.year_central}} {{siterows.3.0.displayhour}})</a>');
+		data.setCell(3, 2, '<a href="/dashboard/chat?action=search&year={{siterows.3.1.year_central}}&month={{siterows.3.1.month_central}}&day={{siterows.3.1.day_central}}&hour={{siterows.3.1.hour_central}}">{{siterows.3.1.displaypostcount}} ({{siterows.3.1.monthname}} {{siterows.3.1.day_central}}, {{siterows.3.1.year_central}} {{siterows.3.1.displayhour}})</a>');
+
+		var table = new google.visualization.Table(document.getElementById('table_div'));
+
+		var formatter = new google.visualization.NumberFormat({fractionDigits: 0});
+		formatter.format(data, 1); // Apply formatter to second column
+
+		table.draw(data, {showRowNumber: false, allowHtml: true, sort: 'disable'});
+
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Record');
+		data.addColumn('string', 'Record Holder');
+		data.addColumn('string', 'Runner-Up');
+		data.addRows(5);
+
+		data.setCell(0, 0, "Most Posts, All Time");
+		data.setCell(0, 1, '<a href="/dashboard/chat?action=search&team={{teamrows.0.0.team.key.name}}&year=0">{{teamrows.0.0.team.ownername}}, {{teamrows.0.0.displaypostcount}}</a>');
+		data.setCell(0, 2, '<a href="/dashboard/chat?action=search&team={{teamrows.0.1.team.key.name}}&year=0">{{teamrows.0.1.team.ownername}}, {{teamrows.0.1.displaypostcount}}</a>');
+
+		data.setCell(1, 0, "Most Posts, Year");
+		data.setCell(1, 1, '<a href="/dashboard/chat?action=search&team={{teamrows.1.0.team.key.name}}&year={{teamrows.1.0.year_central}}">{{teamrows.1.0.team.ownername}}, {{teamrows.1.0.displaypostcount}} ({{teamrows.1.0.year_central}})</a>');
+		data.setCell(1, 2, '<a href="/dashboard/chat?action=search&team={{teamrows.1.1.team.key.name}}&year={{teamrows.1.1.year_central}}">{{teamrows.1.1.team.ownername}}, {{teamrows.1.1.displaypostcount}} ({{teamrows.1.1.year_central}})</a>');
+
+		data.setCell(2, 0, "Most Posts, Month");
+		data.setCell(2, 1, '<a href="/dashboard/chat?action=search&team={{teamrows.2.0.team.key.name}}&year={{teamrows.2.0.year_central}}&month={{teamrows.2.0.month_central}}">{{teamrows.2.0.team.ownername}}, {{teamrows.2.0.displaypostcount}} ({{teamrows.2.0.monthname}} {{teamrows.2.0.year_central}})</a>');
+		data.setCell(2, 2, '<a href="/dashboard/chat?action=search&team={{teamrows.2.1.team.key.name}}&year={{teamrows.2.1.year_central}}&month={{teamrows.2.1.month_central}}">{{teamrows.2.1.team.ownername}}, {{teamrows.2.1.displaypostcount}} ({{teamrows.2.1.monthname}} {{teamrows.2.1.year_central}})</a>');
+
+		data.setCell(3, 0, "Most Posts, Day");
+		data.setCell(3, 1, '<a href="/dashboard/chat?action=search&team={{teamrows.3.0.team.key.name}}&year={{teamrows.3.0.year_central}}&month={{teamrows.3.0.month_central}}&day={{teamrows.3.0.day_central}}">{{teamrows.3.0.team.ownername}}, {{teamrows.3.0.displaypostcount}} ({{teamrows.3.0.monthname}} {{teamrows.3.0.day_central}}, {{teamrows.3.0.year_central}})</a>');
+		data.setCell(3, 2, '<a href="/dashboard/chat?action=search&team={{teamrows.3.1.team.key.name}}&year={{teamrows.3.1.year_central}}&month={{teamrows.3.1.month_central}}&day={{teamrows.3.1.day_central}}">{{teamrows.3.1.team.ownername}}, {{teamrows.3.1.displaypostcount}} ({{teamrows.3.1.monthname}} {{teamrows.3.1.day_central}}, {{teamrows.3.1.year_central}})</a>');
+
+		data.setCell(4, 0, "Most Posts, Hour");
+		data.setCell(4, 1, '<a href="/dashboard/chat?action=search&team={{teamrows.4.0.team.key.name}}&year={{teamrows.4.0.year_central}}&month={{teamrows.4.0.month_central}}&day={{teamrows.4.0.day_central}}&hour={{teamrows.4.0.hour_central}}">{{teamrows.4.0.team.ownername}}, {{teamrows.4.0.displaypostcount}} ({{teamrows.4.0.monthname}} {{teamrows.4.0.day_central}}, {{teamrows.4.0.year_central}} {{teamrows.4.0.displayhour}})</a>');
+		data.setCell(4, 2, '<a href="/dashboard/chat?action=search&team={{teamrows.4.1.team.key.name}}&year={{teamrows.4.1.year_central}}&month={{teamrows.4.1.month_central}}&day={{teamrows.4.1.day_central}}&hour={{teamrows.4.1.hour_central}}">{{teamrows.4.1.team.ownername}}, {{teamrows.4.1.displaypostcount}} ({{teamrows.4.1.monthname}} {{teamrows.4.1.day_central}}, {{teamrows.4.1.year_central}} {{teamrows.4.1.displayhour}})</a>');
+
+		var table = new google.visualization.Table(document.getElementById('table2_div'));
+
+		var formatter = new google.visualization.NumberFormat({fractionDigits: 0});
+		formatter.format(data, 1); // Apply formatter to second column
+
+		table.draw(data, {showRowNumber: false, allowHtml: true, sort: 'disable'});
+	}
+	{% endif %}
+	{% if showteamsummary %}
+	google.load("visualization", "1", {packages:["table"]});
+	google.setOnLoadCallback(drawTable);
+	function drawTable() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Person');
+		{% ifequal section "words" %}
+		data.addColumn('number', 'Usage');
+		{% else %}
+		data.addColumn('number', 'Posts');
+		{% endifequal %}
+		data.addRows({{teamrows}});
+		{% for teamtotal in teamtotals %}
+		data.setCell({{forloop.counter0}}, 0, '<a href="#" onclick="goto_team(\'{{teamtotal.team.key.name}}\')">{{teamtotal.team.ownername}}</a>');
+		{% ifequal section "words" %}
+		data.setCell({{forloop.counter0}}, 1, {{teamtotal.usagecount}});
+		{% else %}
+		data.setCell({{forloop.counter0}}, 1, {{teamtotal.postcount}});
+		{% endifequal %}
+		{% endfor %}
+
+		var table = new google.visualization.Table(document.getElementById('table_div'));
+
+		var formatter = new google.visualization.NumberFormat({fractionDigits: 0});
+		formatter.format(data, 1); // Apply formatter to second column
+
+		table.draw(data, {showRowNumber: true, allowHtml: true});
+	}
+	google.load("visualization", "1", {packages:["piechart"]});
+	google.setOnLoadCallback(drawPiechart);
+	function drawPiechart() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Person');
+		{% ifequal section "words" %}
+		data.addColumn('number', 'Usage');
+		{% else %}
+		data.addColumn('number', 'Posts');
+		{% endifequal %}
+		data.addRows({{teamrows}});
+		{% for teamtotal in teamtotals %}
+		data.setCell({{forloop.counter0}}, 0, '{{teamtotal.team.ownername|escape}}');
+		{% ifequal section "words" %}
+		data.setCell({{forloop.counter0}}, 1, {{teamtotal.usagecount}});
+		{% else %}
+		data.setCell({{forloop.counter0}}, 1, {{teamtotal.postcount}});
+		{% endifequal %}
+		{% endfor %}
+
+		var chart = new google.visualization.PieChart(document.getElementById('piechart_div'));
+		chart.draw(data, {width: 400, height: 220, is3D: true });
+	}
+	{% endif %}
+</script>
+<script language="javascript">
+	function selectyear()
+	{
+		if ($("#year").val() == 0)
+			$("#month").attr("disabled", true);
+		else
+			$("#month").removeAttr("disabled");
+	}
+	function goto_chart(c)
+	{
+		$("#chart").attr("value", c);
+		$("#selector").submit();
+	}
+	function goto_word(w)
+	{
+		$("#word").attr("value", w);
+		$("#selector").submit();
+	}
+	function goto_team(t)
+	{
+		$("#team").val(t);
+		$("#selector").submit();
+	}
+</script>
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper"><a href="/">dyinggiraffe.com</a> | <a href="/dashboard/prefs">{{team_owner_name}}</a></div>
+      <div id="topnav-toolbar-wrapper">
+        <form method="get" action="/dashboard/chat">
+          <a href="/">Chat</a> | <a href="/dashboard">Dashboard</a> | <a href="/fantasy">Cap</a> | <a href="/fantasy/pickem">Pick 'Em</a> | <a href="https://drive.google.com/file/d/0B4Pv8fdYxaAmOGZYQVlZbFJDSTBzRUozazh2c1hMcm15Q0RF/view" target="_blank">#RTFRB</a> | <a href="/logout">Log Out</a> | <input type="hidden" name="action" value="search"><input type="text" class="textbox" name="keywords"><input type="hidden" name="year" value="0"> <input class="submit" type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container">
+    <div class="section-wrapper">
+	    <div id="dashboard-tabs">
+			<div class="nonselected-tab"><a href="/dashboard/admin">Admin</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/prefs">Personal Prefs</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/chat">Chat Archive</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/photos">Photo and Video Archive</a></div>
+			<div class="selected-tab"><a href="/dashboard/stats">Stats</a></div>
+			<div class="tab-right-filler">&nbsp;</div>
+		</div>
+		<div id="stats-body">
+			<div id="stats-content">
+				<br clear="all"/>
+			{% if showselectorbar %}
+			    <div id="chat_archive-selectors">
+					<form id="selector" method="get"><input type="hidden" name="action" value="search">
+						<div class="chat_archive-selector">Year
+							<select id="year" name="year" onchange="selectyear()">
+							<option value="0">(all)</option>
+					        {% for thisyear in years %}
+							<option {% ifequal thisyear.year_central year %}selected{% endifequal %} value="{{thisyear.year_central}}">{{thisyear.year_central}}</option>
+					        {% endfor %}
+							</select>
+						</div>
+						<div class="chat_archive-selector">Month
+							<select id="month" name="month"{% ifequal year 0 %} disabled=true{% endifequal %}>
+							<option value="0">(all)</option>
+					        {% for thismonth in months %}
+							<option {% ifequal forloop.counter month %}selected{% endifequal %} value="{{forloop.counter}}">{{thismonth}}</option>
+					        {% endfor %}
+							</select>
+						</div>
+					{% if showteamdropdown %}
+					<div class="chat_archive-selector">Person
+						<select name="team" id="team">
+						<option value="">(all)</option>
+				        {% for thisteam in teams %}
+						<option {% ifequal thisteam.key.name team %}selected{% endifequal %} value="{{thisteam.key.name}}">{{thisteam.ownername}}</option>
+				        {% endfor %}
+						</select>
+					</div>
+					{% endif %}
+					{% ifequal section "words" %}
+					<div class="chat_archive-selector">Word
+						<input type="text" name="word" id="word" value="{{word}}" style="width:90px">
+					</div>
+					{% endifequal %}
+					<div class="chat_archive-selector"><input type="hidden" name="chart" id="chart" value="{{chart}}"><input type="submit" value="Submit"></div>
+					</form>
+				</div>
+				<br clear="all"/>
+			    <div class="line-divider" style="width:680px;margin-left:0px"></div>
+			{% endif %}
+				<br/>
+			{% if showpostchart %}
+				{% ifequal team "" %}
+				<center>
+				Chart Type:
+					{% ifequal chart "total"%}
+				<b>Total Posts</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('total')">Total Posts</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "by_user"%}
+				<b>Posts By User</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('by_user')">Posts By User</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "volume"%}
+				<b>User Volume</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('volume')">User Volume</a>
+					{% endifequal %}
+				</center>
+				{% else %}
+				<center>
+				Chart Type:
+					{% ifequal chart "total"%}
+				<b>Total Posts</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('total')">Total Posts</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "participation"%}
+				<b>Participation</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('participation')">Participation</a>
+					{% endifequal %}
+				</center>
+				{% endifequal %}
+				<div id="chart_div"></div>
+			{% endif %}
+			{% if showpostbyuserchart %}
+				{% ifequal team "" %}
+				<center>
+				Chart Type:
+					{% ifequal chart "total"%}
+				<b>Total Posts</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('total')">Total Posts</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "by_user"%}
+				<b>Posts By User</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('by_user')">Posts By User</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "volume"%}
+				<b>User Volume</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('volume')">User Volume</a>
+					{% endifequal %}
+				</center>
+				{% endifequal %}
+				<div id="chart_div"></div>
+			{% endif %}
+			{% if showwordchart %}
+				<center>
+				Chart Type:
+					{% ifequal chart "total"%}
+				<b>Total Usage</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('total')">Total Usage</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "by_user"%}
+				<b>Usage By User</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('by_user')">Usage By User</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "pct"%}
+				<b>Usage Pct</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('pct')">Usage Pct</a>
+					{% endifequal %}
+				</center>
+				<div id="chart_div"></div>
+			{% endif %}
+			{% if showwordbyuserchart %}
+				<center>
+				Chart Type:
+					{% ifequal chart "total"%}
+				<b>Total Usage</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('total')">Total Usage</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "by_user"%}
+				<b>Usage By User</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('by_user')">Usage By User</a>
+					{% endifequal %}
+				|
+					{% ifequal chart "pct"%}
+				<b>Usage Pct</b>
+					{% else %}
+				<a href="#" onclick="goto_chart('pct')">Usage Pct</a>
+					{% endifequal %}
+				</center>
+				<div id="chart_div"></div>
+			{% endif %}
+			{% if showsettingselementtable %}
+				{{tabletitle}}
+				<div id="table_div" style="width:740px"></div>
+			{% endif %}
+			{% if showwordtable %}
+				{{tabletitle}}
+				<div id="table_div"></div>
+			{% endif %}
+			{% if showrecordstable %}
+				<h3>Site Records</h3>
+				<div id="table_div"></div>
+				<br/>
+				<br/>
+				<h3>Individual Records</h3>
+				<div id="table2_div"></div>
+			{% endif %}
+			{% if showtotal %}
+			<center><b>{{total_message}}</b></center>
+			{% endif %}
+			<div style="margin-left:35px">
+			{% if showteamsummary %}
+				{{tabletitle}}
+				<div id="table_div" style="position:relative;top:20px;height:350px;float:left;"></div>
+			{% endif %}
+			{% if showteamsummary %}
+				<div id="piechart_div" style="position:relative;top:0px;left:100px;float:top;"></div>
+			{% endif %}
+			</div>
+			<br clear="all"/>
+			</div>
+			<div class="vertical-tabs">
+				{% ifequal section "posts" %}
+				<div class="selected-vertical-tab"><a href="/dashboard/stats/posts">Chat Posts</a></div>
+				{% else %}
+				<div class="nonselected-vertical-tab"><a href="/dashboard/stats/posts">Chat Posts</a></div>
+				{% endifequal %}
+				{% ifequal section "records" %}
+				<div class="selected-vertical-tab"><a href="/dashboard/stats/records">Chat Records</a></div>
+				{% else %}
+				<div class="nonselected-vertical-tab"><a href="/dashboard/stats/records">Chat Records</a></div>
+				{% endifequal %}
+				{% ifequal section "videos" %}
+				<div class="selected-vertical-tab"><a href="/dashboard/stats/videos">Videos</a></div>
+				{% else %}
+				<div class="nonselected-vertical-tab"><a href="/dashboard/stats/videos">Videos</a></div>
+				{% endifequal %}
+				{% ifequal section "photos" %}
+				<div class="selected-vertical-tab"><a href="/dashboard/stats/photos">Photos</a></div>
+				{% else %}
+				<div class="nonselected-vertical-tab"><a href="/dashboard/stats/photos">Photos</a></div>
+				{% endifequal %}
+				{% ifequal section "captions" %}
+				<div class="selected-vertical-tab"><a href="/dashboard/stats/captions">Captions</a></div>
+				{% else %}
+				<div class="nonselected-vertical-tab"><a href="/dashboard/stats/captions">Captions</a></div>
+				{% endifequal %}
+				{% ifequal section "titles" %}
+				<div class="selected-vertical-tab"<a href="/dashboard/stats/titles">Page Titles</a></div>
+				{% else %}
+				<div class="nonselected-vertical-tab"><a href="/dashboard/stats/titles">Page Titles</a></div>
+				{% endifequal %}
+				{% ifequal section "themes" %}
+				<div class="selected-vertical-tab"><a href="/dashboard/stats/themes">Themes</a></div>
+				{% else %}
+				<div class="nonselected-vertical-tab"><a href="/dashboard/stats/themes">Themes</a></div>
+				{% endifequal %}
+			</div>
+		</div>
+   </div>
+   <div class="section-bottom"></div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>dyinggiraffe.com | Salary Cap</title>
+    <link type="text/css" rel="stylesheet" href="http://www.google.com/uds/modules/gviz/1.0/table/table.css" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+{% if firefox_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/firewin.css" />
+{% endif %}
+{% if ie_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/iewin.css" />
+{% endif %}
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="application/javascript">
+	google.charts.load('current', {'packages':['table']});
+	function updateproj(i)
+	{
+		// var weightedFpts2020 = parseFloat($("#fpts_yearminus2_" + i).val()) * (162.0 / 60.0);
+		var avg = (parseFloat($("#fpts_yearminus2_" + i).val()) + 
+			parseFloat($("#fpts_yearminus1_" + i).val()) + 
+			parseFloat($("#proj_for_calc_" + i).val())) / 3.0;
+
+		var cap = avg / 10.0;
+
+		// $("#weighted_fpts_2020_" + i).empty();
+		// $("#weighted_fpts_2020_" + i).append(weightedFpts2020.toFixed(1));
+
+		$("#fpts_3yravg_" + i).empty();
+		$("#fpts_3yravg_" + i).append(avg.toFixed(1));
+
+		$("#salarycapvalue_" + i).empty();
+		$("#salarycapvalue_" + i).append(cap.toFixed(2));
+
+		recalc();
+	}
+
+	function recalc()
+	{
+		var tot = 0.0;
+		var players = new Array();
+		for (var i=1; i <= {{players|length}}; i++)
+		{
+			if ($("#keep_player_" + i + ":checked").val() == "on")
+			{
+				// var weightedFpts2020 = parseFloat($("#fpts_yearminus2_" + i).val()) * (162.0 / 60.0);
+				var cap = (parseFloat($("#fpts_yearminus2_" + i).val()) + 
+					parseFloat($("#fpts_yearminus1_" + i).val()) + 
+					parseFloat($("#proj_for_calc_" + i).val())) / 10.0 / 3.0;
+
+				tot += cap;
+
+				var playerid = $("#cbsplayerid_" + i).val();
+				players[players.length] = playerid;
+			}
+		}
+		$("#total_cap").empty();
+		$("#total_cap").append(tot.toFixed(2));
+		{% if ismyteam %}
+		expirydate = new Date();
+		expirydate.setTime(expirydate.getTime()+(365*24*60*60*1000));
+		document.cookie = 'keep_players=' + players.join('|') + '; path=/; expires=' + expirydate.toGMTString();
+		{% endif %}
+	}
+
+	function switchteam()
+	{
+		document.location = '/fantasy/salary?team='+ ($("#teamselect").val());
+	}
+</script>
+
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper"><a href="/">dyinggiraffe.com</a> | <a href="/dashboard/prefs">{{team_owner_name}}</a></div>
+      <div id="topnav-toolbar-wrapper">
+        <form method="get" action="/dashboard/chat">
+          <a href="/">Chat</a> | <a href="/dashboard">Dashboard</a> | <a href="/fantasy/pickem">Pick 'Em</a> | <a href="https://drive.google.com/file/d/0B4Pv8fdYxaAmOGZYQVlZbFJDSTBzRUozazh2c1hMcm15Q0RF/view" target="_blank">#RTFRB</a> | <a href="/logout">Log Out</a> | <input type="hidden" name="action" value="search"><input type="text" class="textbox" name="keywords"><input type="hidden" name="year" value="0"> <input class="submit" type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container">
+    <div class="section-wrapper">
+		<div id="salary-body">
+			<div id="salary-content">
+				<br clear="all"/>
+				<span class="teamheading">{{team.teamname}}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select team
+				<select name="teamselect" id="teamselect" onchange="switchteam()">
+				<option value="">
+		        {% for team in teams %}
+					<option value="{{team.franchiseteamid}}">{{team.teamname}}</option>
+		        {% endfor %}
+				</select>
+				<div id="table_div"><div style="position: relative;"><div style="overflow: hidden; position: relative;">
+				<table class="google-visualization-table-table">
+				<tbody>
+				<tr class="google-visualization-table-tr-head">
+					<td class="google-visualization-table-th">Player</td>
+					<td class="google-visualization-table-th">Pos</td>
+					<td class="google-visualization-table-th">Team</td>
+					<td class="google-visualization-table-th">Age</td>
+					<td class="google-visualization-table-th">{{capsettings.current_year_minus_2()}}</td>
+					<td class="google-visualization-table-th">{{capsettings.current_year_minus_1()}}</td>
+					<td class="google-visualization-table-th">{{capsettings.current_year}}<br/>YTD</td>
+					<td class="google-visualization-table-th">{{capsettings.current_year}}<br/>proj</td>
+					<!-- <td class="google-visualization-table-th">2020<br/>weighted</td> -->
+					<!-- <td class="google-visualization-table-th">{{capsettings.current_year}}<br/>override</td> -->
+					<td class="google-visualization-table-th">3-year</td>
+					<td class="google-visualization-table-th">{{capsettings.current_year}} Elig</td>
+					<td class="google-visualization-table-th">{{capsettings.next_year()}} Elig</td>
+					<td class="google-visualization-table-th">{{capsettings.next_year()}}<br/>Cap</td>
+					<td class="google-visualization-table-th">Keep?</td>
+				</tr>
+				{% for player in players %}
+				<tr class="google-visualization-table-tr-{{ loop.cycle('odd','even') }}">
+					<td class="google-visualization-table-td">
+						<a href="http://dyg.baseball.cbssports.com/players/playerpage/{{player.cbsplayerid}}" target="_blank">{{player.lastname}}, {{player.firstname}}</a>{% if player.is_disabled %} <span title="{% if player.dl_15 %}15-day DL{% endif %}{% if player.dl_60 %}60-day DL{% endif %}{% if player.dl_season %}; out for the season{% endif %}."><img src='/images/red_cross.gif'/></span>{% endif %}
+						<input id="cbsplayerid_{{loop.index}}" name="cbsplayerid_{{loop.index}}" value="{{player.cbsplayerid}}" type="hidden"/>
+					</td>
+					<td class="google-visualization-table-td">{{player.primaryposition}}</td>
+					<td class="google-visualization-table-td">{{player.mlbteamcode}}</td>
+					<td class="google-visualization-table-td google-visualization-table-td-right">{{player.age}}</td>
+					<td class="google-visualization-table-td google-visualization-table-td-right">{{'%d'|format(player.fpts_yearminus2)}}</td>
+					<td class="google-visualization-table-td google-visualization-table-td-right">{{'%d'|format(player.fpts_yearminus1)}}</td>
+					<td class="google-visualization-table-td google-visualization-table-td-right">{{'%d'|format(player.fpts_year0_actual)}}</td>
+					<td class="google-visualization-table-td google-visualization-table-td-right"><input id="proj_for_calc_{{loop.index}}" name="proj_for_calc_{{loop.index}}" value="{{'%d'|format(player.fpts_year0_used)}}" style="width:30px;text-align:right" type="text" onchange="updateproj({{loop.index}})"/></td>
+					<!-- <td class="google-visualization-table-td google-visualization-table-td-right"><span id="weighted_fpts_2020_{{loop.index}}">{{'%.1f'|format(player.weighted_fpts_2020)}}</span></td> -->
+					<td class="google-visualization-table-td google-visualization-table-td-right"><span id="fpts_3yravg_{{loop.index}}">{{'%.1f'|format(player.fpts_3yravg)}}</span></td>
+					<!-- <td class="google-visualization-table-td google-visualization-table-td-right">
+						<input id="proj_override_{{loop.index}}" name="proj_override_{{loop.index}}" type="text" style="width:30px"/>
+					</td> -->
+					<td class="google-visualization-table-td">&nbsp;{{player.eligibility_str()}}</td>
+					<td class="google-visualization-table-td">&nbsp;{{player.nextyr_eligibility_str()}}</td>
+					<td class="google-visualization-table-td google-visualization-table-td-right"><span id="salarycapvalue_{{loop.index}}">{{'%.2f'|format(player.salarycapvalue)}}</span></td>
+					<td class="google-visualization-table-td google-visualization-table-td-bool">
+						<input name="keep_player_{{loop.index}}" id="keep_player_{{loop.index}}" {% if player.selected_keeper() %}checked {% endif %}onchange="recalc()" type="checkbox"/>
+						<input id="fpts_yearminus2_{{loop.index}}" name="fpts_yearminus2_{{loop.index}}" value="{{player.fpts_yearminus2}}" type="hidden"/>
+						<input id="fpts_yearminus1_{{loop.index}}" name="fpts_yearminus1_{{loop.index}}" value="{{player.fpts_yearminus1}}" type="hidden"/>
+					</td>
+				</tr>
+				{% endfor %}
+				</tbody>
+				</table>
+				<br/>
+				{% if cap_adjustment != 0.0 %}
+				<b>Note: An adjustment of {{'%.2f'|format(cap_adjustment)}} cap points has been applied to the standard maximum cap value of {{'%.2f'|format(capvalue_total)}}.</b><br/>
+				<br/>
+				{% endif %}
+				<i>Last updated {{capsettings.displayupdatedate()}}</i>
+				</div></div></div>
+				<br/>
+				<div style="margin-right: 0px;margin-left:0px;background-color:#d3e2cf;position:fixed;width:850px;bottom:0px;height:15px;padding:3px;z-index:1000">Total cap #: <span id="total_cap">{{'%.2f'|format(total_salary)}}</span> (of {{'%.2f'|format(adjusted_capvalue_total)}})&nbsp;&nbsp;&nbsp;Count by position: C:{{count_c}}, 1B:{{count_1b}}, 2B:{{count_2b}}, 3B:{{count_3b}}, SS:{{count_ss}}, OF:{{count_of}}, SP:{{count_sp}}, RP:{{count_rp}}&nbsp;&nbsp;&nbsp;Total:{{count_tot}} (of {{all_players_tot}})</div>
+			</div>
+		</div>
+   </div>
+   <div class="section-bottom"></div>
+</body>
+</html>

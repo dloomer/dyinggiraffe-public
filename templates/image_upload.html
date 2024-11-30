@@ -1,0 +1,57 @@
+<head>
+	<link type="text/css" rel="stylesheet" href="/stylesheets/main3.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src='/javascript/jquery.ui.widget.js'></script>
+	<script src='/javascript/jquery.iframe-transport.js'></script>
+	<script src='/javascript/jquery.fileupload.js'></script>
+</head>
+<form>
+	<table>
+		<tr>
+		<td colspan="2">&nbsp;</td>
+		</tr>
+		<tr>
+		<td width="100">Image file:</td><td><input type="file" id="image_upload" name="files[]" accept="image/*"></td>
+		</tr>
+		<tr>
+		<td colspan="2"><i id="uploading-instructions"></i></td>
+		</tr>
+		<tr>
+		<td colspan="2">&nbsp;</td>
+		</tr>
+	</table>
+	<input id="admin-submit" type="submit" value="Submit" onclick="submitAvatarUpload();return false;"><br>
+	<br/>
+</form>
+<script>
+/* part of document.ready() */
+$("#image_upload").fileupload({
+	dataType: 'json',
+	done: function (e, data) {
+		if (data.result.success) {
+			var blob_key = data.result.blob_key;
+			var serving_url = data.result.serving_url;
+			var url = serving_url;
+			var replace = {{replace}};
+			$tgt = $('#{{target_id}}', window.parent.document);
+			if ($tgt.val() != '' && !replace)
+				$tgt.val($tgt.val() + " " + url);
+			else
+				$tgt.val(url);
+			window.parent.tb_remove();
+		} else {
+		}
+	},
+	submit: function (e, data) {
+		return false;
+	},
+	replaceFileInput: false,
+	url: "{{upload_url}}"
+});
+
+function submitAvatarUpload() {
+	$("#image_upload").fileupload('send', {
+		fileInput: $("#image_upload")
+	});
+}
+</script>

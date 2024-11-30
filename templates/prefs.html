@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>dyinggiraffe.com | Preferences</title>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+{% if firefox_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/firewin.css" />
+{% endif %}
+{% if ie_win %}
+	<link type="text/css" rel="stylesheet" href="/stylesheets/iewin.css" />
+{% endif %}
+    <link id="theme_stylesheet" type="text/css" rel="stylesheet" href="/stylesheets/{{theme}}" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/thickbox.css" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script language="javascript">$(window).load(function() {$("#prefsform :input:visible:enabled:first").focus();});</script>
+<body>
+  <div class="section-container" id="topnav-section-container">
+    <div class="section-wrapper">
+      <div id="topnav-welcome-wrapper"><a href="/">dyinggiraffe.com</a> | <a href="/dashboard/prefs">{{team_owner_name}}</a></div>
+      <div id="topnav-toolbar-wrapper">
+        <form method="get" action="/dashboard/chat">
+          <a href="/">Chat</a> | <a href="/dashboard">Dashboard</a> | <a href="/fantasy">Cap</a> | <a href="/fantasy/pickem">Pick 'Em</a> | <a href="https://drive.google.com/file/d/0B4Pv8fdYxaAmOGZYQVlZbFJDSTBzRUozazh2c1hMcm15Q0RF/view" target="_blank">#RTFRB</a> | <a href="/logout">Log Out</a> | <input type="hidden" name="action" value="search"><input type="text" class="textbox" name="keywords"><input type="hidden" name="year" value="0"> <input class="submit" type="submit" value="Search">
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="section-container">
+    <div class="section-wrapper">
+	    <div id="dashboard-tabs">
+			<div class="nonselected-tab"><a href="/dashboard/admin">Admin</a></div>
+			<div class="selected-tab">Personal Prefs</div>
+			<div class="nonselected-tab"><a href="/dashboard/chat">Chat Archive</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/generator">Fake Post Generator</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/photos">Photo and Video Archive</a></div>
+			<div class="nonselected-tab"><a href="/dashboard/stats">Stats</a></div>
+			<div class="tab-right-filler">&nbsp;</div>
+		</div>
+		<br clear="all"/>
+		<form id="prefsform" method="post">
+			<div id="form_container">
+			<fieldset>
+				<label for="team_owner_name">Display Name</label>
+				<div class="div_textbox">
+					<input name="team_owner_name" type="text" id="team_owner_name" value="{{team_owner_name}}" />
+				</div>
+				<div class="clear"></div>
+				<label for="team_owner_name">Google ID/e-mail (optional)</label>
+				<div class="div_textbox">
+					<input name="google_id" type="text" id="google_id" value="{{google_id}}" />
+				</div>
+				<div class="clear"></div>
+				<div class="div_checkbox" style="margin-left:180px">
+					<input name="user_google_login" id="user_google_login" {% if user_google_login %}checked {% endif %}type="checkbox"/>
+					<label for="user_google_login">Use Google ID for login</label>
+				</div>
+			</fieldset>
+			<hr size="1">
+			<i>Below are preferences that apply only to the device you are using right now.  They will not change anything for anyone else.</i><p/>
+			<fieldset>
+				<div class="div_checkbox" style="width:400px">
+					<input name="hide_photos" id="hide_photos" {% if hidephotos %}checked {% endif %}type="checkbox"/>
+					<label for="hide_photos" style="width:400px">Hide photo and video #spread at top</label>
+				</div>
+				<div class="div_checkbox">
+					<input name="hide_inline_media" id="hide_inline_media" {% if hideinlinemedia %}checked {% endif %}type="checkbox"/>
+					<label for="hide_inline_media">Hide inline chat photos</label>
+				</div>
+				<div class="div_checkbox" style="width:400px">
+					<input name="hide_countdown" id="hide_countdown" {% if hidecountdown %}checked {% endif %}type="checkbox"/>
+					<label for="hide_countdown" style="width:400px">My name is Mike Ermitage and I don't like countdowns.</label>
+				</div>
+				<div class="button_div">
+					<input name="Submit" type="submit" value="Submit" class="buttons" />
+				</div>
+				<div class="clear"></div>
+			</fieldset>
+			</div>
+		</form>
+   </div>
+  <div class="section-bottom"></div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<html>
+<head>
+  <meta http-equiv="refresh" content="0;url={{ next_url }}"/>
+</head>
+<body>
+  <h3>{{data_kind}} Stats Update</h3>
+  <ul>
+	{% ifequal data_kind "pagesettingsstats "%}
+    <li>Settings Kind: {{ settings_kind }}</li>
+	{% endifequal %}
+	{% ifequal data_kind "pagesettingscloseout "%}
+    <li>Settings Kind: {{ settings_kind }}</li>
+	{% endifequal %}
+    <li>Updated: {{ update_count }}</li>
+    <li>Total Updated: {{ total_update_count }}</li>
+    <li>Key: {{ data_key }}</li>
+    <li>Elapsed Time: {{ completion_seconds }} seconds</li>
+    <li>Current Time (UTC): {{ current_time }}</li>
+  </ul>
+</body>
+</html>
